@@ -27,8 +27,6 @@ const SocialForm = forwardRef((_, ref) => {
         }
     }
 
-    /* ------------------ VALIDATION ------------------ */
-
     const validateSocial = () => {
         const newErrors: Record<string, string> = {}
         let firstErrorKey: string | null = null
@@ -80,12 +78,10 @@ const SocialForm = forwardRef((_, ref) => {
         return Object.keys(newErrors).length === 0
     }
 
-    /* 🔥 EXPOSE TO PARENT */
     useImperativeHandle(ref, () => ({
         validate: validateSocial,
     }))
 
-    /* ------------------ UI ------------------ */
 
     return (
         <div className="bg-white rounded-2xl p-6 mt-6 border">

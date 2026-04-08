@@ -5,8 +5,6 @@ const ContactForm = forwardRef((_, ref) => {
     const { contextData, setContextData } = useData()
     const [errors, setErrors] = useState<Record<string, string>>({})
 
-    /* ------------------ VALIDATION ------------------ */
-
     const validateContact = () => {
         const newErrors: Record<string, string> = {}
         let firstErrorKey: string | null = null
@@ -47,18 +45,14 @@ const ContactForm = forwardRef((_, ref) => {
         return Object.keys(newErrors).length === 0
     }
 
-    /* 🔥 EXPOSE TO PARENT */
     useImperativeHandle(ref, () => ({
         validate: validateContact,
     }))
-
-    /* ------------------ UI ------------------ */
 
     return (
         <div className="bg-white rounded-2xl p-6 mt-6 border">
             <h2 className="font-semibold mb-6">Contact Section</h2>
 
-            {/* EMAIL */}
             <div data-error="email" className="mb-5">
                 <label className="block font-semibold mb-2 text-sm">
                     Email
@@ -100,7 +94,6 @@ const ContactForm = forwardRef((_, ref) => {
                 )}
             </div>
 
-            {/* PHONE */}
             <div data-error="phone" className="mb-5">
                 <label className="block font-semibold mb-2 text-sm">
                     Phone
@@ -142,7 +135,6 @@ const ContactForm = forwardRef((_, ref) => {
                 )}
             </div>
 
-            {/* ADDRESS */}
             <div data-error="address">
                 <label className="block font-semibold mb-2 text-sm">
                     Address

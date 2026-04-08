@@ -1,4 +1,5 @@
 import { useRef } from "react"
+import Button from "../../Button"
 
 type ImageUploadSolutionPeopleProps = {
   value?: string
@@ -63,7 +64,7 @@ function ImageUploadSolutionPeople({
           />
 
           {showRemove && (
-            <button
+            <Button
               type="button"
               onClick={(e) => {
                 e.stopPropagation()
@@ -72,7 +73,7 @@ function ImageUploadSolutionPeople({
               className="absolute top-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded-md hover:bg-black"
             >
               Remove
-            </button>
+            </Button>
           )}
         </>
       ) : (

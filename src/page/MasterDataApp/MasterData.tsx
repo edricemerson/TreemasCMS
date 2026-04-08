@@ -8,6 +8,7 @@ import FinancialStatus from "./masterDataPage/FinancialStatus";
 import AnnualRevenue from "./masterDataPage/AnnualRevenue";
 import MarketScope from "./masterDataPage/MarketScope";
 import EstimatedMarket from "./masterDataPage/EstimatedMarket";
+import Button from "../Button";
 
 function MasterData() {
 
@@ -35,7 +36,7 @@ function MasterData() {
 
             <div className="flex flex-row flex-wrap font-semibold gap-4">
                 {NavButton.map((btn) => (
-                    <button
+                    <Button
                         key={btn.id}
                         onClick={() => setNavButtonActive(btn.id)}
                         className={`border border-gray-300 rounded-lg px-2 py-1 transition duration-200
@@ -45,7 +46,7 @@ function MasterData() {
                         }`}
                     >
                         {btn.label}
-                    </button>
+                    </Button>
                 ))}
             </div>
 

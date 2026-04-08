@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import ScrollableSelect from './ScrollableSelect';
+import Button from '../Button';
 
 
 const KATEGORI_OPTIONS = [
@@ -351,19 +352,19 @@ function CompanyInfoForm() {
                         {/* Actions */}
                         <div className="flex flex-col sm:flex-row justify-end gap-3 mt-8 pt-6 border-t border-slate-200">
 
-                            <button
+                            <Button
                                 type="button"
                                 className="px-5 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 hover:border-slate-400"
                             >
                                 Batal
-                            </button>
+                            </Button>
 
-                            <button
+                            <Button
                                 type="submit"
                                 className="px-6 py-2 text-sm font-medium text-white bg-teal-600 rounded-lg hover:bg-teal-700"
                             >
                                 Lanjutkan ke Assessment
-                            </button>
+                            </Button>
 
                         </div>
 

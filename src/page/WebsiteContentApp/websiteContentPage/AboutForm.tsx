@@ -5,9 +5,6 @@ import { useState, forwardRef, useImperativeHandle } from "react"
 const AboutForm = forwardRef((_, ref) => {
     const { contextData, setContextData } = useData()
     const [errors, setErrors] = useState<Record<string, string>>({})
-
-    /* ------------------ VALIDATION ------------------ */
-
     const validateAbout = () => {
         const newErrors: Record<string, string> = {}
         let firstErrorKey: string | null = null
@@ -33,12 +30,9 @@ const AboutForm = forwardRef((_, ref) => {
         return Object.keys(newErrors).length === 0
     }
 
-    /* 🔥 EXPOSE TO PARENT */
     useImperativeHandle(ref, () => ({
         validate: validateAbout,
     }))
-
-    /* ------------------ UI ------------------ */
 
     return (
         <>

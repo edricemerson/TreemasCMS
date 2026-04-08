@@ -1,3 +1,4 @@
+import Button from "../../Button"
 import ImageUploadSolutionPeople from "../component/ImageUploadSolutionPeople"
 import { useData } from "../DataStruct/Context"
 import { useState, forwardRef, useImperativeHandle } from "react"
@@ -5,8 +6,6 @@ import { useState, forwardRef, useImperativeHandle } from "react"
 const PeopleForm = forwardRef((_, ref) => {
     const { contextData, setContextData } = useData()
     const [errors, setErrors] = useState<Record<string, string>>({})
-
-    /* ------------------ HANDLERS ------------------ */
 
     const handleAddPerson = () => {
         if (contextData.people.length >= 3) return
@@ -31,8 +30,6 @@ const PeopleForm = forwardRef((_, ref) => {
             people: contextData.people.filter(p => p.id !== id),
         })
     }
-
-    /* ------------------ VALIDATION ------------------ */
 
     const validatePeople = () => {
         const newErrors: Record<string, string> = {}
@@ -75,21 +72,17 @@ const PeopleForm = forwardRef((_, ref) => {
         return Object.keys(newErrors).length === 0
     }
 
-    /* 🔥 EXPOSE TO PARENT */
     useImperativeHandle(ref, () => ({
         validate: validatePeople,
     }))
 
-    /* ------------------ UI ------------------ */
-
     return (
         <div className="bg-white rounded-2xl p-6 mt-6 border">
 
-            {/* Header */}
             <div className="flex justify-between items-center mb-6">
                 <h2 className="text-base font-semibold">People Section</h2>
 
-                <button
+                <Button
                     type="button"
                     onClick={handleAddPerson}
                     disabled={contextData.people.length >= 3}
@@ -100,10 +93,9 @@ const PeopleForm = forwardRef((_, ref) => {
                     `}
                 >
                     Add Person
-                </button>
+                </Button>
             </div>
 
-            {/* People List */}
             <div className="flex flex-col gap-6">
                 {contextData.people.map((person, index) => (
                     <div key={person.id} className="border rounded-2xl p-4 bg-gray-50">
@@ -113,18 +105,17 @@ const PeopleForm = forwardRef((_, ref) => {
                                 Person {index + 1}
                             </p>
 
-                            <button
+                            <Button
                                 type="button"
                                 onClick={() => handleDeletePerson(person.id)}
                                 className="text-red-500"
                             >
                                 Delete
-                            </button>
+                            </Button>
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
 
-                            {/* IMAGE */}
                             <div data-error={`personImage-${index}`}>
                                 <label className="font-semibold block mb-1 text-sm">
                                     Image
@@ -156,10 +147,8 @@ const PeopleForm = forwardRef((_, ref) => {
                                 )}
                             </div>
 
-                            {/* DETAILS */}
                             <div>
 
-                                {/* NAME */}
                                 <div data-error={`personName-${index}`} className="mb-3">
                                     <label className="font-semibold block mb-1 text-sm">
                                         Name
@@ -198,7 +187,6 @@ const PeopleForm = forwardRef((_, ref) => {
                                     )}
                                 </div>
 
-                                {/* POSITION */}
                                 <div data-error={`personPosition-${index}`}>
                                     <label className="font-semibold block mb-1 text-sm">
                                         Position

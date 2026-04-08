@@ -1,3 +1,4 @@
+import Button from "../../Button"
 import ImageUploadSolutionPeople from "../component/ImageUploadSolutionPeople"
 import { useData } from "../DataStruct/Context"
 import { useState, forwardRef, useImperativeHandle } from "react"
@@ -5,8 +6,6 @@ import { useState, forwardRef, useImperativeHandle } from "react"
 const SolutionForm = forwardRef((_, ref) => {
     const { contextData, setContextData } = useData()
     const [errors, setErrors] = useState<Record<string, string>>({})
-
-    /* ------------------ HANDLERS ------------------ */
 
     const handleAddSolution = () => {
         if (contextData.solutions.length >= 3) return
@@ -31,8 +30,6 @@ const SolutionForm = forwardRef((_, ref) => {
             solutions: contextData.solutions.filter((s) => s.id !== id),
         })
     }
-
-    /* ------------------ VALIDATION ------------------ */
 
     const validateSolution = () => {
         const newErrors: Record<string, string> = {}
@@ -75,21 +72,17 @@ const SolutionForm = forwardRef((_, ref) => {
         return Object.keys(newErrors).length === 0
     }
 
-    /* 🔥 EXPOSE TO PARENT */
     useImperativeHandle(ref, () => ({
         validate: validateSolution,
     }))
 
-    /* ------------------ UI ------------------ */
-
     return (
         <div className="bg-white rounded-2xl p-6 mt-6 border">
 
-            {/* Header */}
             <div className="flex justify-between items-center mb-6">
                 <h2 className="text-base font-semibold">Solutions Section</h2>
 
-                <button
+                <Button
                     type="button"
                     onClick={handleAddSolution}
                     disabled={contextData.solutions.length >= 3}
@@ -100,10 +93,9 @@ const SolutionForm = forwardRef((_, ref) => {
                     `}
                 >
                     Add Solution
-                </button>
+                </Button>
             </div>
 
-            {/* Solutions List */}
             <div className="flex flex-col gap-6">
                 {contextData.solutions.map((solution, index) => (
                     <div key={solution.id} className="border rounded-2xl p-4 bg-gray-50">
@@ -113,18 +105,17 @@ const SolutionForm = forwardRef((_, ref) => {
                                 Solution {index + 1}
                             </p>
 
-                            <button
+                            <Button
                                 type="button"
                                 onClick={() => handleDeleteSolution(solution.id)}
                                 className="text-red-500 hover:text-red-600 transition"
                             >
                                 Delete
-                            </button>
+                            </Button>
                         </div>
 
                         <div className="grid grid-cols-2 gap-6">
 
-                            {/* IMAGE */}
                             <div data-error={`solutionImage-${index}`}>
                                 <label className="font-semibold block mb-2 text-sm">
                                     Image
@@ -156,10 +147,8 @@ const SolutionForm = forwardRef((_, ref) => {
                                 )}
                             </div>
 
-                            {/* TEXT */}
                             <div>
 
-                                {/* TITLE */}
                                 <div data-error={`solutionTitle-${index}`} className="mb-4">
                                     <label className="font-semibold block mb-2 text-sm">
                                         Title
@@ -198,7 +187,6 @@ const SolutionForm = forwardRef((_, ref) => {
                                     )}
                                 </div>
 
-                                {/* DESCRIPTION */}
                                 <div data-error={`solutionDescription-${index}`}>
                                     <label className="font-semibold block mb-2 text-sm">
                                         Description

@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import Button from '../Button';
 
 interface ScrollableSelectProps {
     id: string;
@@ -59,7 +60,7 @@ export default function ScrollableSelect({
 
     return (
         <div ref={containerRef} className="relative w-full">
-            <button
+            <Button
                 type="button"
                 id={id}
                 onClick={() => setOpen((prev) => !prev)}
@@ -72,7 +73,7 @@ export default function ScrollableSelect({
             >
                 <span>{displayValue}</span>
                 <span className="text-xs text-slate-500 ml-2">▼</span>
-            </button>
+            </Button>
 
             {open && (
                 <ul

@@ -1,3 +1,5 @@
+import Button from "../../Button"
+
 type Props = {
     onPublish: () => void
 }
@@ -7,7 +9,7 @@ function BottomDraftPublishButton({ onPublish }: Props) {
         <div className="flex justify-end mt-12">
             <div className="flex gap-4 mt-1">
 
-                <button className="flex items-center bg-gray-100 border border-gray-300 px-4 py-2 rounded-2xl hover:bg-gray-200 transition-all duration-200">
+                <Button className="flex items-center bg-gray-100 border border-gray-300 px-4 py-2 rounded-2xl hover:bg-gray-200 transition-all duration-200">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                     fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M4 4h12l4 4v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" />
@@ -17,10 +19,9 @@ function BottomDraftPublishButton({ onPublish }: Props) {
                     <p className="pl-3 font-semibold text-gray-900 text-sm">
                         Save Draft
                     </p>
-                </button>
+                </Button>
 
-                {/* ✅ Publish Button */}
-                <button
+                <Button
                     onClick={onPublish}
                     className="flex items-center bg-[#0B0B23] px-4 py-2 
                     rounded-2xl hover:bg-[#1a1a3a] transition-all duration-200"
@@ -33,7 +34,7 @@ function BottomDraftPublishButton({ onPublish }: Props) {
                     <p className="pl-3 font-semibold text-white text-sm">
                         Publish
                     </p>
-                </button>
+                </Button>
 
             </div>
         </div>

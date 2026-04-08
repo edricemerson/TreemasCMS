@@ -1,6 +1,8 @@
 import { useRef } from "react"
+import Button from "../../Button"
 
 type ImageUploadHeroProps = {
+    title?: string
     value?: string
     onChangeImage?: (img: string | null) => void
     showRemove?: boolean
@@ -58,13 +60,13 @@ function ImageUploadHero({
                     />
 
                     {showRemove && (
-                        <button
+                        <Button
                             type="button"
                             onClick={handleRemove}
                             className="absolute top-4 right-4 bg-red-500/80 text-white text-xs px-3 py-1.5 rounded-md hover:bg-red-600 font-medium transition-colors"
                         >
                             Hapus Hero
-                        </button>
+                        </Button>
                     )}
                 </>
             ) : (

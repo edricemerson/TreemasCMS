@@ -1,4 +1,5 @@
 import { useRef } from "react"
+import Button from "../../Button"
 
 type ImageUploadComponentProps = {
     value?: string
@@ -59,13 +60,13 @@ function ImageUploadComponent({
                     />
 
                     {showRemove && (
-                        <button
+                        <Button
                             type="button"
                             onClick={handleRemove}
                             className="absolute top-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded-md hover:bg-black"
                         >
                             Remove
-                        </button>
+                        </Button>
                     )}
                 </>
             ) : (

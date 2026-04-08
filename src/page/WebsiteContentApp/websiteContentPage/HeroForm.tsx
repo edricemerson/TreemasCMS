@@ -2,12 +2,11 @@ import ImageUploadHero from "../component/ImageUploadHero"
 import ImageUploadComponent from "../component/ImageUploadComponent"
 import { useData } from "../DataStruct/Context"
 import { useState, forwardRef, useImperativeHandle } from "react"
+import Button from "../../Button"
 
 const HeroForm = forwardRef((_, ref) => {
     const { contextData, setContextData } = useData()
     const [errors, setErrors] = useState<Record<string, string>>({})
-
-    /* ------------------ COMPONENT HANDLERS ------------------ */
 
     const handleAddComponent = () => {
         if (contextData.components.length >= 4) return
@@ -31,8 +30,6 @@ const HeroForm = forwardRef((_, ref) => {
             components: contextData.components.filter(c => c.id !== id),
         })
     }
-
-    /* ------------------ VALIDATION ------------------ */
 
     const validateHero = () => {
         const newErrors: Record<string, string> = {}
@@ -83,19 +80,15 @@ const HeroForm = forwardRef((_, ref) => {
         return Object.keys(newErrors).length === 0
     }
 
-    /* 🔥 EXPOSE VALIDATE TO PARENT */
     useImperativeHandle(ref, () => ({
         validate: validateHero,
     }))
-
-    /* ------------------ UI ------------------ */
 
     return (
         <div className="min-w-5xl flex flex-col bg-white mt-5 rounded-2xl border">
             <form className="p-4">
                 <p className="font-semibold mb-4">Hero Section</p>
 
-                {/* HERO TITLE */}
                 <div data-error="title" className="mb-4">
                     <label className="text-sm font-semibold block mb-1">
                         Hero Title
@@ -169,7 +162,6 @@ const HeroForm = forwardRef((_, ref) => {
                     )}
                 </div>
 
-                {/* BACKGROUND IMAGE */}
                 <div data-error="backgroundImage" className="mb-6">
                     <ImageUploadHero
                         title="Background Image"
@@ -199,14 +191,13 @@ const HeroForm = forwardRef((_, ref) => {
                     )}
                 </div>
 
-                {/* COMPONENTS */}
                 <div className="mt-6">
                     <div className="flex justify-between items-center mb-4">
                         <h3 className="text-sm font-semibold">
                             Hero Components
                         </h3>
 
-                        <button
+                        <Button
                             type="button"
                             onClick={handleAddComponent}
                             disabled={contextData.components.length >= 4}
@@ -216,20 +207,20 @@ const HeroForm = forwardRef((_, ref) => {
                                     : "bg-[#0B0B23] hover:bg-[#1a1a3a]"}`}
                         >
                             Add Component
-                        </button>
+                        </Button>
                     </div>
 
                     <div className="grid grid-cols-4 gap-6">
                         {contextData.components.map((item, index) => (
                             <div key={item.id} className="relative">
 
-                                <button
+                                <Button
                                     type="button"
                                     onClick={() => handleDeleteComponent(item.id)}
                                     className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-2 py-1 rounded-md"
                                 >
                                     ✕
-                                </button>
+                                </Button>
 
                                 <label className="text-sm font-semibold block mb-1">
                                     Component {index + 1}

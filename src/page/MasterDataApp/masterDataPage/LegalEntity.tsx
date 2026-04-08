@@ -1,3 +1,4 @@
+import Button from "../../Button";
 import Searchbar from "../component/Searchbar";
 import { useState, useEffect } from "react";
 
@@ -98,7 +99,7 @@ function LegalEntity (){
                 <div className="flex items-center justify-between">
                     <p className="font-semibold text-xl">Legal Entity</p>
 
-                    <button onClick={() => {setEditingId(null); setFormKode(""); setFormName(""); 
+                    <Button onClick={() => {setEditingId(null); setFormKode(""); setFormName(""); 
                     setFormDescription(""); setShowModal(true); setTimeout(() => setAnimateModal(true), 10);}}
                     className="flex items-center gap-2 bg-black text-white px-4 py-2 rounded-lg 
                     font-medium text-base hover:bg-gray-800 transition-all duration-200">
@@ -109,7 +110,7 @@ function LegalEntity (){
                             d="M12 4v16m8-8H4" />
                         </svg>
                         Add New
-                    </button>
+                    </Button>
                 </div>
 
                 <div className="mt-10 mb-10">
@@ -144,7 +145,7 @@ function LegalEntity (){
 
                                     <td className="py-3 text-right">
                                         <div className="flex justify-end gap-4 pr-1">
-                                            <button onClick={() => handleEdit(entity)} className="p-1 hover:bg-gray-300 rounded-lg transition-colors duration-300 ease-in-out">
+                                            <Button onClick={() => handleEdit(entity)} className="p-1 hover:bg-gray-300 rounded-lg transition-colors duration-300 ease-in-out">
                                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" 
                                                 stroke="#000000" strokeLinecap="round" strokeLinejoin="round" 
                                                 id="Edit--Streamline-Tabler" height="24" width="24">
@@ -153,9 +154,9 @@ function LegalEntity (){
                                                     <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97L9 12v3h3l8.385 -8.415z" strokeWidth="2"></path>
                                                     <path d="m16 5 3 3" strokeWidth="2"></path>
                                                 </svg>
-                                            </button>
+                                            </Button>
 
-                                            <button onClick={() => handleDelete(entity.id)} className="p-1 hover:bg-gray-300 rounded-lg transition-colors duration-300 ease-in-out">
+                                            <Button onClick={() => handleDelete(entity.id)} className="p-1 hover:bg-gray-300 rounded-lg transition-colors duration-300 ease-in-out">
                                                 <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" 
                                                 width="25" height="25" viewBox="0 0 48 48">
                                                     <path fill="none" stroke="red" strokeMiterlimit="10" strokeWidth="3" d="M19.5,11.5V10c0-2.5,2-4.5,4.5-4.5s4.5,2,4.5,4.5v1.5">
@@ -166,7 +167,7 @@ function LegalEntity (){
                                                     </line><line x1="27.5" x2="27.5" y1="19.5" y2="34.5" fill="none" stroke="red" strokeLinecap="round" strokeMiterlimit="10" strokeWidth="3">   
                                                     </line>
                                                 </svg>
-                                            </button>
+                                            </Button>
                                         </div>
                                     </td>
                                 </tr>
@@ -222,15 +223,15 @@ function LegalEntity (){
                         </div>
                         <div className="flex justify-end gap-3 mt-6">
 
-                            <button onClick={closeModal}
+                            <Button onClick={closeModal}
                             className="px-4 py-2 border rounded-lg hover:bg-gray-100">
                             Cancel
-                            </button>
+                            </Button>
 
-                            <button onClick={handleSave}
+                            <Button onClick={handleSave}
                             className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800">
                             Save
-                            </button>
+                            </Button>
                         </div>
                     </div>
                 </div>
