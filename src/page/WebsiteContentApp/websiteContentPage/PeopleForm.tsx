@@ -16,9 +16,11 @@ const PeopleForm = forwardRef((_, ref) => {
                 ...contextData.people,
                 {
                     id: crypto.randomUUID(),
+                    labelName: "",
                     name: "",
                     position: "",
                     image: "",
+                    description: "",
                 },
             ],
         })
@@ -56,6 +58,18 @@ const PeopleForm = forwardRef((_, ref) => {
             if (!person.position.trim()) {
                 const key = `personPosition-${index}`
                 newErrors[key] = "Person position is required"
+                setFirst(key)
+            }
+
+            if (!person.labelName.trim()) {
+                const key = `personLabel-${index}`
+                newErrors[key] = "Person label is required"
+                setFirst(key)
+            }
+
+            if (!person.description.trim()) {
+                const key = `personDescription-${index}`
+                newErrors[key] = "Person description is required"
                 setFirst(key)
             }
         })
@@ -149,6 +163,52 @@ const PeopleForm = forwardRef((_, ref) => {
 
                             <div>
 
+                                <div data-error={`personLabel-${index}`} className="mb-3">
+                                    <label className="font-semibold block mb-1 text-sm">
+                                        Label
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        value={person.labelName || ""}
+                                        onChange={(e) => {
+                                            const value = e.target.value
+                                            const updated = [...contextData.people]
+
+                                            updated[index].labelName = value
+
+                                            setContextData({
+                                                ...contextData,
+                                                people: updated,
+                                            })
+
+                                            if (value.trim()) {
+                                                setErrors(prev => {
+                                                    const key = `personLabel-${index}`
+
+                                                    if (!prev[key]) return prev
+
+                                                    const updatedErr = { ...prev }
+                                                    delete updatedErr[key]
+
+                                                    return updatedErr
+                                                })
+                                            }
+                                        }}
+                                        className={`w-full bg-white border rounded-xl px-3 py-2
+                                        ${errors[`personLabel-${index}`]
+                                                ? "border-red-500 focus:ring-red-500"
+                                                : "border-gray-300 focus:ring-teal-500"}
+                                        focus:outline-none focus:ring-2`}
+                                    />
+
+                                    {errors[`personLabel-${index}`] && (
+                                        <p className="text-red-500 text-xs mt-1">
+                                            {errors[`personLabel-${index}`]}
+                                        </p>
+                                    )}
+                                </div>
+
                                 <div data-error={`personName-${index}`} className="mb-3">
                                     <label className="font-semibold block mb-1 text-sm">
                                         Name
@@ -221,6 +281,52 @@ const PeopleForm = forwardRef((_, ref) => {
                                     {errors[`personPosition-${index}`] && (
                                         <p className="text-red-500 text-xs mt-1">
                                             {errors[`personPosition-${index}`]}
+                                        </p>
+                                    )}
+                                </div>
+
+                                <div data-error={`personDescription-${index}`} className="mt-3">
+                                    <label className="font-semibold block mb-1 text-sm">
+                                        Description
+                                    </label>
+
+                                    <textarea
+                                        value={person.description || ""}
+                                        onChange={(e) => {
+                                            const value = e.target.value
+                                            const updated = [...contextData.people]
+
+                                            updated[index].description = value
+
+                                            setContextData({
+                                                ...contextData,
+                                                people: updated,
+                                            })
+
+                                            if (value.trim()) {
+                                                setErrors(prev => {
+                                                    const key = `personDescription-${index}`
+
+                                                    if (!prev[key]) return prev
+
+                                                    const updatedErr = { ...prev }
+                                                    delete updatedErr[key]
+
+                                                    return updatedErr
+                                                })
+                                            }
+                                        }}
+                                        rows={4}
+                                        className={`w-full bg-white border rounded-xl px-3 py-2 resize-none
+                                        ${errors[`personDescription-${index}`]
+                                                ? "border-red-500 focus:ring-red-500"
+                                                : "border-gray-300 focus:ring-teal-500"}
+                                        focus:outline-none focus:ring-2`}
+                                    />
+
+                                    {errors[`personDescription-${index}`] && (
+                                        <p className="text-red-500 text-xs mt-1">
+                                            {errors[`personDescription-${index}`]}
                                         </p>
                                     )}
                                 </div>

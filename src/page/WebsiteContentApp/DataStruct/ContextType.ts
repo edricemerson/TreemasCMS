@@ -13,8 +13,10 @@ export type SolutionType = {
 
 export type PeopleType = {
     id: string
+    labelName: string
     name: string
     position: string
+    description: string
     image: string
 }
 
