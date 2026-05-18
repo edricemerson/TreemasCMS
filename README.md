@@ -1,4 +1,4 @@
-#jangan LUPA GITIGNORE DI ctrl + A & ctrl + / lagi 
+# jangan LUPA GITIGNORE DI ctrl + A & ctrl + / lagi 
 
 # React + TypeScript + Vit
 
