@@ -19,37 +19,37 @@ function Login() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 // NYALAIN KALO MISAL MAU DEVELOPMENT
-        localStorage.setItem("token","dummy-token");
+        // localStorage.setItem("token","dummy-token");
 
-        localStorage.setItem("user", JSON.stringify({ id: 1, name: "John Doe"}));
+        // localStorage.setItem("user", JSON.stringify({ id: 1, name: "John Doe"}));
 
-        window.location.href = ("/menu/dashboard");
+        // window.location.href = ("/menu/dashboard");
 //SAMPE SINI AJA
-        // try {
-        //     const response = await fetch("http://localhost:3000/api/admin/login", {
-        //         method: "POST",
-        //         headers: {
-        //             "Content-Type": "application/json",
-        //         },
-        //         body: JSON.stringify({
-        //             email: username,
-        //             password,
-        //         }),
-        //     });
+        try {
+            const response = await fetch("http://localhost:3000/api/admin/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    email: username,
+                    password,
+                }),
+            });
 
-        //     const data = await response.json();
+            const data = await response.json();
 
-        //     if (!response.ok || !data.success) {
-        //         throw new Error(data.message || "Invalid credentials");
-        //     }
+            if (!response.ok || !data.success) {
+                throw new Error(data.message || "Invalid credentials");
+            }
 
-        //     login(data.token, data.user);
+            login(data.token, data.user);
             
-        //     window.location.href = ("/menu/dashboard");
+            window.location.href = ("/menu/dashboard");
 
-        // } catch (err: any) {
-        //     setError(err.message || "Login failed");
-        // }
+        } catch (err: any) {
+            setError(err.message || "Login failed");
+        }
         window.location.href = ("/menu/dashboard");
     }
 
