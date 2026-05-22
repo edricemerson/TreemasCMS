@@ -65,7 +65,7 @@ function GroupCard({ groups, onEditGroup, onDeleteGroup, onRefresh }: Props) {
     const [subgroupQuestionsMap, setSubgroupQuestionsMap] = useState<{ [key: string]: Question[] }>({});
 
     // SINKRONISASI DATABASE KE STATE ASLI
-    useEffect(() => {
+useEffect(() => {
         const newCategories: any = {};
         const newSubgroupMap: any = {};
         groups.forEach((g, gIdx) => {
@@ -75,8 +75,14 @@ function GroupCard({ groups, onEditGroup, onDeleteGroup, onRefresh }: Props) {
                 sub.categories?.forEach((cat, cIdx) => {
                     const catKey = `${subKey}-${cIdx}`;
                     newSubgroupMap[catKey] = cat.questions?.map((q:any) => ({
-                        id: q.id, title: q.text,
-                        answers: q.options?.map((o:any) => ({ id: o.id, text: o.label, score: parseFloat(o.points) || 0 })) || []
+                        id: q.id, 
+                        title: q.text,
+                        answers: q.options?.map((o:any) => ({ 
+                            id: o.id, 
+                            text: o.label, 
+                            score: parseFloat(o.points) || 0,
+                            type: o.type || "" // 🔴 PERBAIKAN: Menjaga status type agar tidak hilang saat sync
+                        })) || []
                     })) || [];
                 });
             });
@@ -84,7 +90,6 @@ function GroupCard({ groups, onEditGroup, onDeleteGroup, onRefresh }: Props) {
         setCategories(newCategories);
         setSubgroupQuestionsMap(newSubgroupMap);
     }, [groups]);
-
     const handleSaveCategory = async () => {
         if (!categoryLabel.trim() || !activeSubgroupKey) return;
         const [gIdx, sIdx] = activeSubgroupKey.split('-');
@@ -144,33 +149,36 @@ function GroupCard({ groups, onEditGroup, onDeleteGroup, onRefresh }: Props) {
         setTimeout(() => { setShowQuestionModal(false); setQuestionTitle(""); setAnswers([{ text: "", score: 0 }, { text: "", score: 0 }]); }, 200);
     };
 
-    const handleUpdateQuestion = async (categoryKey: string, questionIndex: number, updatedQuestion: Question) => {
+const handleUpdateQuestion = async (categoryKey: string, questionIndex: number, updatedQuestion: Question) => {
         const questionId = updatedQuestion.id;
         if(!questionId) return;
         const token = localStorage.getItem("token") || "";
 
+        // 1. Update teks pertanyaan
         await fetch(`http://localhost:3000/api/assessment/questions/${questionId}`, {
             method: "PUT", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
             body: JSON.stringify({ question_text: updatedQuestion.title })
         });
 
+        // 2. Looping untuk menyimpan jawaban beserta tipe checkbox-nya
         for (let i = 0; i < updatedQuestion.answers.length; i++) {
-            const ans = updatedQuestion.answers[i];
+            const ans: { id?: number; text: string; score: number; type?: string } = updatedQuestion.answers[i];
             if (ans.id) {
                 await fetch(`http://localhost:3000/api/assessment/options/${ans.id}`, {
                     method: "PUT", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
-                    body: JSON.stringify({ option_text: ans.text, points: ans.score })
+                    // 🔴 PERUBAHAN DISINI: Tambahkan option_type
+                    body: JSON.stringify({ option_text: ans.text, points: ans.score, option_type: ans.type || "" })
                 });
             } else {
                 await fetch(`http://localhost:3000/api/assessment/options`, {
                     method: "POST", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
-                    body: JSON.stringify({ question_id: questionId, option_text: ans.text, points: ans.score, sequence: i + 1 })
+                    // 🔴 PERUBAHAN DISINI: Tambahkan option_type
+                    body: JSON.stringify({ question_id: questionId, option_text: ans.text, points: ans.score, sequence: i + 1, option_type: ans.type || "" })
                 });
             }
         }
         if(onRefresh) onRefresh();
     };
-
     const handleDeleteQuestion = async (categoryKey: string, questionIndex: number) => {
         const qId = subgroupQuestionsMap[categoryKey][questionIndex].id;
         if(qId) {

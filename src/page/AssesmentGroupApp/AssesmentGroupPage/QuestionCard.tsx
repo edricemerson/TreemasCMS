@@ -4,7 +4,7 @@ import Button from "../../Button";
 type Question = {
     id?: number;
     title: string;
-    answers: { id?: number; text: string; score: number }[];
+    answers: { id?: number; text: string; score: number; type?: string }[];
 };
 
 type Props = {
@@ -26,7 +26,7 @@ function QuestionCard({ questions, onUpdateQuestion, onDeleteQuestion }: Props) 
     const [editingIndex, setEditingIndex] = useState<number | null>(null);
 
     const [questionTitle, setQuestionTitle] = useState("");
-    const [answers, setAnswers] = useState<{ id?: number; text: string; score: number }[]>([]);
+    const [answers, setAnswers] = useState<{ id?: number; text: string; score: number; type?: string }[]>([]);
 
     const handleSave = () => {
         if (editingIndex === null) return;
@@ -40,7 +40,7 @@ function QuestionCard({ questions, onUpdateQuestion, onDeleteQuestion }: Props) 
 
     const handleAddAnswer = () => {
         if (answers.length >= 5) return;
-        setAnswers(prev => [...prev, { text: "", score: 0 }]);
+        setAnswers(prev => [...prev, { text: "", score: 0, type: "" }]);
     };
 
     const handleDeleteAnswer = (i: number) => {
@@ -49,6 +49,17 @@ function QuestionCard({ questions, onUpdateQuestion, onDeleteQuestion }: Props) 
 
     const handleAnswerChange = (i: number, field: "text" | "score", value: string) => {
         setAnswers(prev => prev.map((a, idx) => idx === i ? { ...a, [field]: field === "score" ? Number(value) : value } : a));
+    };
+
+    const handleAnswerTypeChange = (questionIndex: number, answerIndex: number, newType: string) => {
+        const targetQuestion = questions[questionIndex];
+        const updatedAnswers = targetQuestion.answers.map((ans, idx) => 
+            idx === answerIndex ? { ...ans, type: newType } : ans
+        );
+        onUpdateQuestion(questionIndex, {
+            ...targetQuestion,
+            answers: updatedAnswers
+        });
     };
 
     const closeModal = () => {
@@ -85,7 +96,6 @@ function QuestionCard({ questions, onUpdateQuestion, onDeleteQuestion }: Props) 
                                     <div className="flex gap-8">
                                         <Button onClick={() => { setEditingIndex(questionIndex); setQuestionTitle(question.title); setAnswers(question.answers); setShowModal(true); setTimeout(() => setAnimateModal(true), 10); }} className="flex items-center gap-2 px-2 py-1 hover:bg-gray-300 rounded-lg transition-colors duration-300 ease-in-out">
                                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#000000" strokeLinecap="round" strokeLinejoin="round" id="Edit--Streamline-Tabler" className="w-7">
-                                                <desc>Edit Streamline Icon: https://streamlinehq.com</desc>
                                                 <path d="M7 7H6a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" strokeWidth="2"></path>
                                                 <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97L9 12v3h3l8.385 -8.415z" strokeWidth="2"></path>
                                                 <path d="m16 5 3 3" strokeWidth="2"></path>
@@ -103,12 +113,27 @@ function QuestionCard({ questions, onUpdateQuestion, onDeleteQuestion }: Props) 
                                 </div>
 
                                 {question.answers.map((answer, i) => (
-                                    <div key={i} className="flex justify-between items-center bg-gray-200 rounded-lg px-3 py-2">
+                                    <div key={i} className="flex justify-between items-center rounded-lg px-3 py-2 bg-gray-200">
                                         <span className="text-black text-lg flex items-center">
                                             <span className="w-8 h-6 flex items-center justify-center text-gray-500 text-base font-semibold mr-3">{String.fromCharCode(65 + i)}.</span>
                                             {answer.text || "No answer text"}
                                         </span>
-                                        <span className="font-semibold text-blue-500 text-lg">
+
+                                        <div className="flex items-center gap-6">
+                                            {/* NO ANSWER BUTTON */}
+                                            <label className={`flex items-center gap-2 cursor-pointer px-2 py-1 rounded-md transition-colors ${answer.type === "no-answer" ? "bg-blue-500 text-white" : "hover:bg-gray-300"}`}>
+                                                <input type="checkbox" checked={answer.type === "no-answer"} onChange={(e) => handleAnswerTypeChange(questionIndex, i, e.target.checked ? "no-answer" : "")} className="w-4 h-4 cursor-pointer" />
+                                                <span className="font-medium text-sm">No Answer</span>
+                                            </label>
+
+                                            {/* NO POINT BUTTON */}
+                                            <label className={`flex items-center gap-2 px-2 py-1 rounded-md transition-colors ${answer.type === "no-point" ? "bg-blue-500 text-white" : answer.type === "no-answer" ? "opacity-40 cursor-not-allowed" : "hover:bg-gray-300 cursor-pointer"}`}>
+                                                <input type="checkbox" checked={answer.type === "no-point"} disabled={answer.type === "no-answer"} onChange={(e) => handleAnswerTypeChange(questionIndex, i, e.target.checked ? "no-point" : "")} className="w-4 h-4" />
+                                                <span className="font-medium text-sm">No Point</span>
+                                            </label>
+                                        </div>
+
+                                        <span className={`font-semibold text-lg ${answer.type === "no-answer" ? "text-gray-400" : "text-blue-500"}`}>
                                             {answer.score} <span className="font-normal text-gray-500">points</span>
                                         </span>
                                     </div>
@@ -119,6 +144,7 @@ function QuestionCard({ questions, onUpdateQuestion, onDeleteQuestion }: Props) 
                 );
             })}
 
+            {/* MODAL EDIT TETAP SAMA */}
             {showModal && (
                 <div className={`fixed inset-0 flex items-center justify-center z-50 transition-opacity duration-200 ${animateModal ? "bg-black/40 opacity-100" : "bg-black/0 opacity-0"}`}>
                     <div className={`bg-white rounded-2xl shadow-lg w-180 p-6 transform transition-all duration-200 ${animateModal ? "scale-100 opacity-100" : "scale-95 opacity-0"}`}>

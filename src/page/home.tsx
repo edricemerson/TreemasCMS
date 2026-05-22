@@ -14,9 +14,11 @@ function Home() {
         about: "",
         statistic: { businesses: 0, provinces: 0, areas: 0, satisfaction: 0 },
         contact: { email: "", phone: "", address: "" },
+        prefooter: { title1: "", title2: "", description: "", backgroundImage: "", buttonLink: "" },
         social: { linkedin: "", instagram: "", twitter: "" },
         solutions: [],
         people: []
+
     });
 
     useEffect(() => {
@@ -33,9 +35,16 @@ function Home() {
                         title: settings.hero_title || "",
                         description: settings.hero_desc || "",
                         backgroundImage: settings.hero_bg_image || "",
-                        components: settings.hero_components ? JSON.parse(settings.hero_components) : [],
+                        components: Array.isArray(settings.hero_components) ? settings.hero_components : [],
                         
                         about: settings.about_content || "",
+                        prefooter: {
+                            title1: settings.prefooter_title1 || "",
+                            title2: settings.prefooter_title2 || "",
+                            description: settings.prefooter_description || "",
+                            backgroundImage: settings.prefooter_backgroundImage || "",
+                            buttonLink: settings.prefooter_buttonLink || "",
+                        },
                         
                         statistic: {
                             businesses: Number(settings.statistic_businesses) || 0,

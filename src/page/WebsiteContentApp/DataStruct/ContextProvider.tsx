@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react" // 
+import { useState, useEffect } from "react" 
 import { Context } from "./Context"
 import type { AllDataType } from "./ContextType"
 import { useLocation } from "react-router-dom"
@@ -28,6 +28,13 @@ export const ContextProvider = ({ children }: { children: React.ReactNode }) => 
             email: "",
             phone: "",
             address: "",
+        },
+        prefooter: {
+            title1: "",
+            title2: "",
+            description: "",
+            backgroundImage: "",
+            buttonLink: "",
         },
         social: {
             linkedin: "",
@@ -61,8 +68,18 @@ export const ContextProvider = ({ children }: { children: React.ReactNode }) => 
                         title: dbSettings.hero_title || prev.title,
                         description: dbSettings.hero_desc || prev.description,
                         backgroundImage: dbSettings.hero_bg_image || prev.backgroundImage,
-                        components: dbSettings.hero_components ? JSON.parse(dbSettings.hero_components) : prev.components,
+                        
+                        // 🔴 PERBAIKAN DI SINI: JSON.parse dihapus, diganti dengan Array.isArray
+                        components: Array.isArray(dbSettings.hero_components) ? dbSettings.hero_components : prev.components,
+                        
                         about: dbSettings.about_content || prev.about,
+                        prefooter: {
+                            title1: dbSettings.prefooter_title1 || prev.prefooter.title1,
+                            title2: dbSettings.prefooter_title2 || prev.prefooter.title2,
+                            description: dbSettings.prefooter_description || prev.prefooter.description,
+                            backgroundImage: dbSettings.prefooter_backgroundImage || prev.prefooter.backgroundImage,
+                            buttonLink: dbSettings.prefooter_buttonLink || prev.prefooter.buttonLink,
+        },
 
                         statistic: {
                             ...prev.statistic,

@@ -9,6 +9,7 @@ import ContactForm from "./websiteContentPage/ContactForm"
 import SocialForm from "./websiteContentPage/SocialForm"
 import BottomDraftPublishButton from "./websiteContentPage/BottomDraftPublishButton"
 import { useData } from "./DataStruct/Context"
+import PrefooterForm from "./websiteContentPage/PreFooterForm"
 
 function WebsiteContent() {
     const heroRef = useRef<any>(null)
@@ -16,6 +17,7 @@ function WebsiteContent() {
     const peopleRef = useRef<any>(null)
     const aboutRef = useRef<any>(null)
     const contactRef = useRef<any>(null)
+    const prefooterRef = useRef<any>(null)
     const socialRef = useRef<any>(null)
     
     const { contextData } = useData();
@@ -32,6 +34,7 @@ function WebsiteContent() {
         const isPeopleValid = peopleRef.current?.validate()
         const isAboutValid = aboutRef.current?.validate()
         const isContactValid = contactRef.current?.validate()
+        const isPrefooterValid = prefooterRef.current?.validate()
         const isSocialValid = socialRef.current?.validate()
 
         if (
@@ -40,6 +43,7 @@ function WebsiteContent() {
             isPeopleValid &&
             isAboutValid &&
             isContactValid &&
+            isPrefooterValid &&
             isSocialValid
         ) {
             try {
@@ -131,6 +135,7 @@ function WebsiteContent() {
             <PeopleForm ref={peopleRef} />
             <AboutForm ref={aboutRef} />
             <ContactForm ref={contactRef} />
+            <PrefooterForm ref={prefooterRef} />
             <SocialForm ref={socialRef} />
 
             <BottomDraftPublishButton onPublish={handlePublish} />

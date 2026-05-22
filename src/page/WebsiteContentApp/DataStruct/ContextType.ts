@@ -26,6 +26,14 @@ export type ContactType = {
     address: string
 }
 
+export type PrefooterType = {
+    title1: string
+    title2: string
+    description: string
+    backgroundImage: string
+    buttonLink: string
+}
+
 export type StatisticsType = {
     businesses: number
     provinces: number
@@ -49,5 +57,6 @@ export type AllDataType = {
     about: string
     statistic: StatisticsType
     contact: ContactType
+    prefooter: PrefooterType
     social: SocialType
 }
