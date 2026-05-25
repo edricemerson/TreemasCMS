@@ -37,6 +37,16 @@ function WebsiteContent() {
         const isPrefooterValid = prefooterRef.current?.validate()
         const isSocialValid = socialRef.current?.validate()
 
+        console.log("Status Validasi:", {
+            Hero: isHeroValid,
+            Solution: isSolutionValid,
+            People: isPeopleValid,
+            About: isAboutValid,
+            Contact: isContactValid,
+            Prefooter: isPrefooterValid,
+            Social: isSocialValid
+        });
+
         if (
             isHeroValid &&
             isSolutionValid &&
@@ -55,8 +65,8 @@ function WebsiteContent() {
                 const teamPayload = {
                     team: contextData.people.map((person, i) => ({
                         name: person.name,
-                        title: person.position,
-                        description: "",
+                        label: person.position,       
+                        description: person.description, 
                         image_base64: person.image,
                         display_order: i + 1
                     }))
@@ -91,7 +101,13 @@ function WebsiteContent() {
                         hero_desc: contextData.description,
                         hero_bg_image: contextData.backgroundImage,
                         hero_components: JSON.stringify(contextData.components),
-
+                        
+                        preFooter_title1: contextData.prefooter.title1,
+                        preFooter_title2: contextData.prefooter.title2,
+                        preFooter_desc: contextData.prefooter.description,
+                        preFooter_bg: contextData.prefooter.backgroundImage,
+                        preFooter_btn_link: contextData.prefooter.buttonLink,
+                       
                         about_content: contextData.about,
 
                         statistic_businesses: contextData.statistic.businesses,
@@ -123,6 +139,8 @@ function WebsiteContent() {
                 console.error("failed publishing to db", error);
                 alert("Failed saving data to server. Check console.");
             }
+        }else {
+            alert('failed to publish, form filled incorrectly');
         }
     }
 

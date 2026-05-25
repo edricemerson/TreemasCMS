@@ -38,13 +38,13 @@ function Home() {
                         components: Array.isArray(settings.hero_components) ? settings.hero_components : [],
                         
                         about: settings.about_content || "",
-                        prefooter: {
-                            title1: settings.prefooter_title1 || "",
-                            title2: settings.prefooter_title2 || "",
-                            description: settings.prefooter_description || "",
-                            backgroundImage: settings.prefooter_backgroundImage || "",
-                            buttonLink: settings.prefooter_buttonLink || "",
-                        },
+                       prefooter: {
+                            title1: settings.preFooter_title1 || "",
+                            title2: settings.preFooter_title2 || "",
+                            description: settings.preFooter_desc || "",
+                            backgroundImage: settings.preFooter_bg || "",
+                            buttonLink: settings.preFooter_btn_link || "",
+                          },
                         
                         statistic: {
                             businesses: Number(settings.statistic_businesses) || 0,
@@ -241,6 +241,45 @@ function Home() {
                             <div className="text-4xl font-bold text-teal-600 mb-2">{landingData.statistic.satisfaction || "0"}%</div>
                             <h3 className="text-base font-medium text-gray-600">Satisfaction Rate</h3>
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* --- PREFOOTER SECTION --- */}
+            <div className="my-24 px-6 md:px-12 lg:px-24">
+                <div 
+                    className="relative rounded-3xl p-12 md:p-20 text-center overflow-hidden flex flex-col items-center justify-center shadow-xl"
+                    style={{
+                        // Jika ada gambar, pakai gambar. Jika tidak, pakai warna solid Teal
+                        backgroundColor: landingData.prefooter.backgroundImage ? "transparent" : "#0d9488",
+                        backgroundImage: landingData.prefooter.backgroundImage ? `url('${landingData.prefooter.backgroundImage}')` : "none",
+                        backgroundSize: "cover",
+                        backgroundPosition: "center",
+                    }}
+                >
+                    {landingData.prefooter.backgroundImage && (
+                        <div className="absolute inset-0 bg-black/60 z-0"></div>
+                    )}
+
+                    <div className="relative z-10 max-w-3xl text-white">
+                        {/* Title 1 & 2 */}
+                        <h2 className="text-3xl md:text-5xl font-bold leading-tight mb-4">
+                            {landingData.prefooter.title1} <br />
+                            <span className="text-teal-200">{landingData.prefooter.title2}</span>
+                        </h2>
+
+                        {/* Description */}
+                        <p className="text-lg md:text-xl text-gray-200 mb-10 whitespace-pre-line">
+                            {landingData.prefooter.description}
+                        </p>
+
+                        {/* Button Link */}
+                        <a 
+                            href={landingData.prefooter.buttonLink || "/form"} 
+                            className="inline-block bg-white text-teal-700 font-bold text-lg py-4 px-10 rounded-full shadow-lg hover:bg-gray-100 hover:scale-105 transition-all duration-300"
+                        >
+                            Get Started Now
+                        </a>
                     </div>
                 </div>
             </div>

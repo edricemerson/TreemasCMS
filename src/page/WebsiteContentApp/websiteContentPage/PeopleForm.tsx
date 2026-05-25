@@ -42,6 +42,11 @@ const PeopleForm = forwardRef((_, ref) => {
         }
 
         contextData.people.forEach((person, index) => {
+            // Kita gunakan (person.properti || "") untuk mencegah error undefined
+            const name = (person.name || "").trim();
+            const pos = (person.position || "").trim();
+            const label = (person.labelName || "").trim();
+            const desc = (person.description || "").trim();
 
             if (!person.image) {
                 const key = `personImage-${index}`
@@ -49,25 +54,25 @@ const PeopleForm = forwardRef((_, ref) => {
                 setFirst(key)
             }
 
-            if (!person.name.trim()) {
+            if (!name) {
                 const key = `personName-${index}`
                 newErrors[key] = "Person name is required"
                 setFirst(key)
             }
 
-            if (!person.position.trim()) {
+            if (!pos) {
                 const key = `personPosition-${index}`
                 newErrors[key] = "Person position is required"
                 setFirst(key)
             }
 
-            if (!person.labelName.trim()) {
+            if (!label) {
                 const key = `personLabel-${index}`
                 newErrors[key] = "Person label is required"
                 setFirst(key)
             }
 
-            if (!person.description.trim()) {
+            if (!desc) {
                 const key = `personDescription-${index}`
                 newErrors[key] = "Person description is required"
                 setFirst(key)

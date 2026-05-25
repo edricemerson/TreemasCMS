@@ -69,16 +69,16 @@ export const ContextProvider = ({ children }: { children: React.ReactNode }) => 
                         description: dbSettings.hero_desc || prev.description,
                         backgroundImage: dbSettings.hero_bg_image || prev.backgroundImage,
                         
-                        // 🔴 PERBAIKAN DI SINI: JSON.parse dihapus, diganti dengan Array.isArray
+                   
                         components: Array.isArray(dbSettings.hero_components) ? dbSettings.hero_components : prev.components,
                         
                         about: dbSettings.about_content || prev.about,
                         prefooter: {
-                            title1: dbSettings.prefooter_title1 || prev.prefooter.title1,
-                            title2: dbSettings.prefooter_title2 || prev.prefooter.title2,
-                            description: dbSettings.prefooter_description || prev.prefooter.description,
-                            backgroundImage: dbSettings.prefooter_backgroundImage || prev.prefooter.backgroundImage,
-                            buttonLink: dbSettings.prefooter_buttonLink || prev.prefooter.buttonLink,
+                            title1: dbSettings.preFooter_title1 || prev.prefooter.title1,
+                            title2: dbSettings.preFooter_title2 || prev.prefooter.title2,
+                            description: dbSettings.preFooter_desc || prev.prefooter.description,
+                            backgroundImage: dbSettings.preFooter_bg || prev.prefooter.backgroundImage,
+                            buttonLink: dbSettings.preFooter_btn_link || prev.prefooter.buttonLink,
         },
 
                         statistic: {
@@ -116,7 +116,9 @@ export const ContextProvider = ({ children }: { children: React.ReactNode }) => 
                             ? teamData.data.map((t: any) => ({
                                 id: t.id.toString(),
                                 name: t.name,
-                                position: t.title, 
+                                labelName: t.label,       
+                                position: t.label,         
+                                description: t.description, 
                                 image: t.image_url
                             }))
                             : prev.people

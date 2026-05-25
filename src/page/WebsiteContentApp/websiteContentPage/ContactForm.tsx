@@ -13,9 +13,12 @@ const ContactForm = forwardRef((_, ref) => {
             if (!firstErrorKey) firstErrorKey = key
         }
 
-        const { email, phone, address } = contextData.contact
+        // 🔴 PERBAIKAN: Konversi ke string dulu biar tidak error kalau datanya bukan string
+        const email = String(contextData.contact.email || "").trim();
+        const phone = String(contextData.contact.phone || "").trim();
+        const address = String(contextData.contact.address || "").trim();
 
-        if (!email.trim()) {
+        if (!email) {
             newErrors.email = "Email is required"
             setFirst("email")
         } else if (!/^\S+@\S+\.\S+$/.test(email)) {
@@ -23,12 +26,12 @@ const ContactForm = forwardRef((_, ref) => {
             setFirst("email")
         }
 
-        if (!phone.trim()) {
+        if (!phone) {
             newErrors.phone = "Phone number is required"
             setFirst("phone")
         }
 
-        if (!address.trim()) {
+        if (!address) {
             newErrors.address = "Address is required"
             setFirst("address")
         }

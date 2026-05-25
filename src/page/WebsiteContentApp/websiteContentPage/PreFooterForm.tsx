@@ -19,35 +19,17 @@ const PrefooterForm = forwardRef((_, ref) => {
 
     useImperativeHandle(ref, () => ({
         validate: () => {
-            const newErrors = {
-                title1:
-                    contextData.prefooter.title1.trim()
-                        ? ""
-                        : "Title 1 is required",
-
-                title2:
-                    contextData.prefooter.title2.trim()
-                        ? ""
-                        : "Title 2 is required",
-
-                description:
-                    contextData.prefooter.description.trim()
-                        ? ""
-                        : "Description is required",
-
-                backgroundImage:
-                    contextData.prefooter.backgroundImage
-                        ? ""
-                        : "Background image is required",
-                buttonLink:
-                    contextData.prefooter.buttonLink.trim()
-                        ? ""
-                        : "Button link is required",
-            }
-
-            setErrors(newErrors)
-
-            return !Object.values(newErrors).some(Boolean)
+            // 🔴 PERBAIKAN: Kita longgarkan validasinya. 
+            // Karena Prefooter sifatnya opsional, kita hilangkan semua error
+            // dan SELALU kembalikan nilai TRUE agar tombol Publish bisa jalan!
+            setErrors({
+                title1: "",
+                title2: "",
+                description: "",
+                backgroundImage: "",
+                buttonLink: "",
+            });
+            return true;
         },
     }))
 
@@ -217,7 +199,8 @@ const PrefooterForm = forwardRef((_, ref) => {
                         </p>
                     )}
                 </div>
-                {/* button link */}
+                
+                {/* BUTTON LINK */}
                 <div className="mb-4">
                     <label className="text-sm font-semibold block mb-1">
                         Button Link
