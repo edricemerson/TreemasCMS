@@ -1,203 +1,88 @@
+import { forwardRef, useImperativeHandle } from "react"
 import { useData } from "../DataStruct/Context"
-import { useState, forwardRef, useImperativeHandle } from "react"
 
 const SocialForm = forwardRef((_, ref) => {
     const { contextData, setContextData } = useData()
-    const [errors, setErrors] = useState<Record<string, string>>({})
 
-    const handleChange = (
-        field: "linkedin" | "instagram" | "twitter",
-        value: string
-    ) => {
-        setContextData((prev) => ({
-            ...prev,
-            social: {
-                ...prev.social,
-                [field]: value,
-            },
-        }))
-
-        if (value.trim()) {
-            setErrors(prev => {
-                if (!prev[field]) return prev
-                const updated = { ...prev }
-                delete updated[field]
-                return updated
-            })
-        }
-    }
-
-    const validateSocial = () => {
-        const newErrors: Record<string, string> = {}
-        let firstErrorKey: string | null = null
-
-        const setFirst = (key: string) => {
-            if (!firstErrorKey) firstErrorKey = key
-        }
-
-        const { linkedin, instagram, twitter } = contextData.social
-
-        const usernameRegex = /^[a-zA-Z0-9._-]+$/ // allows letters, numbers, dot, underscore, dash
-
-        // LINKEDIN
-        if (!linkedin.trim()) {
-            newErrors.linkedin = "LinkedIn username is required"
-            setFirst("linkedin")
-        } else if (!usernameRegex.test(linkedin)) {
-            newErrors.linkedin = "Invalid username format"
-            setFirst("linkedin")
-        }
-
-        // INSTAGRAM
-        if (!instagram.trim()) {
-            newErrors.instagram = "Instagram username is required"
-            setFirst("instagram")
-        } else if (!usernameRegex.test(instagram)) {
-            newErrors.instagram = "Invalid username format"
-            setFirst("instagram")
-        }
-
-        // TWITTER
-        if (!twitter.trim()) {
-            newErrors.twitter = "Twitter username is required"
-            setFirst("twitter")
-        } else if (!usernameRegex.test(twitter)) {
-            newErrors.twitter = "Invalid username format"
-            setFirst("twitter")
-        }
-
-        setErrors(newErrors)
-
-        if (firstErrorKey) {
-            const element = document.querySelector(
-                `[data-error="${firstErrorKey}"]`
-            )
-            element?.scrollIntoView({ behavior: "smooth", block: "center" })
-        }
-
-        return Object.keys(newErrors).length === 0
-    }
-
+    // Bebas validasi untuk sosmed (tidak memblokir tombol publish)
     useImperativeHandle(ref, () => ({
-        validate: validateSocial,
+        validate: () => true, 
     }))
 
+    const addSocial = () => {
+        setContextData({
+            ...contextData,
+            social: [...contextData.social, { platform: "", url: "", icon: "" }]
+        })
+    }
+
+    const removeSocial = (index: number) => {
+        const newSocial = [...contextData.social]
+        newSocial.splice(index, 1)
+        setContextData({
+            ...contextData,
+            social: newSocial
+        })
+    }
 
     return (
         <div className="bg-white rounded-2xl p-6 mt-6 border">
-
-            <h2 className="font-semibold mb-6">
-                Social Links
-            </h2>
-
-            {/* LINKEDIN */}
-            <div data-error="linkedin" className="mb-5">
-                <label className="block font-semibold mb-2 text-sm">
-                    LinkedIn URL
-                </label>
-
-                <div
-                    className={`flex items-stretch bg-gray-100 rounded-xl border overflow-hidden
-                    ${errors.linkedin
-                            ? "border-red-500 focus-within:ring-red-500"
-                            : "border-gray-300 focus-within:ring-teal-500"
-                        }
-                    focus-within:ring-2`}
+            <div className="flex justify-between items-center mb-6">
+                <h2 className="font-semibold text-lg">Social Media Links</h2>
+                <button 
+                    type="button" 
+                    onClick={addSocial} 
+                    className="bg-[#0B0B23] text-white px-4 py-2 rounded-xl text-sm transition hover:bg-[#1a1a3a]"
                 >
-                    <span className="pl-3 text-gray-500 text-sm whitespace-nowrap flex items-center">
-                        https://linkedin.com/company/
-                    </span>
+                    Add Link
+                </button>
+            </div>
 
-                    <input
-                        type="text"
-                        value={contextData.social.linkedin}
-                        onChange={(e) =>
-                            handleChange("linkedin", e.target.value)
-                        }
-                        placeholder="yourusername"
-                        className="flex-1 bg-transparent px-2 py-3 text-sm focus:outline-none"
-                    />
-                </div>
-
-                {errors.linkedin && (
-                    <p className="text-red-500 text-xs mt-2">
-                        {errors.linkedin}
+            <div className="flex flex-col gap-4">
+                {contextData.social.map((item, index) => (
+                    <div key={index} className="flex gap-4 items-end border p-4 rounded-xl bg-gray-50">
+                        <div className="flex-1">
+                            <label className="block text-sm font-semibold text-gray-700 mb-1">Platform</label>
+                            <input 
+                                className="border p-2 rounded-lg w-full text-sm focus:outline-none focus:ring-2 focus:ring-teal-500" 
+                                placeholder="e.g. instagram, linkedin, x" 
+                                value={item.platform} 
+                                onChange={(e) => {
+                                    const newSocial = [...contextData.social];
+                                    newSocial[index].platform = e.target.value;
+                                    setContextData({...contextData, social: newSocial});
+                                }} 
+                            />
+                        </div>
+                        <div className="flex-[2]">
+                            <label className="block text-sm font-semibold text-gray-700 mb-1">URL</label>
+                            <input 
+                                className="border p-2 rounded-lg w-full text-sm focus:outline-none focus:ring-2 focus:ring-teal-500" 
+                                placeholder="https://..." 
+                                value={item.url} 
+                                onChange={(e) => {
+                                    const newSocial = [...contextData.social];
+                                    newSocial[index].url = e.target.value;
+                                    setContextData({...contextData, social: newSocial});
+                                }} 
+                            />
+                        </div>
+                        <button 
+                            type="button" 
+                            onClick={() => removeSocial(index)} 
+                            className="text-red-500 font-medium text-sm p-2 mb-1 hover:underline"
+                        >
+                            Delete
+                        </button>
+                    </div>
+                ))}
+                
+                {contextData.social.length === 0 && (
+                    <p className="text-gray-500 text-sm italic text-center py-4">
+                        No social links added yet. Click "Add Link" to create one.
                     </p>
                 )}
             </div>
-
-            {/* INSTAGRAM */}
-            <div data-error="instagram" className="mb-5">
-                <label className="block font-semibold mb-2 text-sm">
-                    Instagram Username
-                </label>
-
-                <div
-                    className={`flex items-stretch bg-gray-100 rounded-xl border overflow-hidden
-                    ${errors.instagram
-                            ? "border-red-500 focus-within:ring-red-500"
-                            : "border-gray-300 focus-within:ring-teal-500"
-                        }
-                    focus-within:ring-2`}
-                >
-                    <span className="pl-3 text-gray-500 text-sm whitespace-nowrap flex items-center">
-                        https://instagram.com/
-                    </span>
-
-                    <input
-                        type="text"
-                        value={contextData.social.instagram}
-                        onChange={(e) =>
-                            handleChange("instagram", e.target.value)
-                        }
-                        placeholder="yourusername"
-                        className="flex-1 bg-transparent px-2 py-3 text-sm focus:outline-none"
-                    />
-                </div>
-
-                {errors.instagram && (
-                    <p className="text-red-500 text-xs mt-2">
-                        {errors.instagram}
-                    </p>
-                )}
-            </div>
-
-            {/* TWITTER */}
-            <div data-error="twitter">
-                <label className="block font-semibold mb-2 text-sm">
-                    X (Twitter) URL
-                </label>
-
-                <div
-                    className={`flex items-stretch bg-gray-100 rounded-xl border overflow-hidden
-                    ${errors.twitter
-                            ? "border-red-500 focus-within:ring-red-500"
-                            : "border-gray-300 focus-within:ring-teal-500"
-                        }
-                    focus-within:ring-2`}
-                >
-                    <span className="pl-3 text-gray-500 text-sm whitespace-nowrap flex items-center">
-                        https://twitter.com/
-                    </span>
-
-                    <input
-                        type="text"
-                        value={contextData.social.twitter}
-                        onChange={(e) =>
-                            handleChange("twitter", e.target.value)
-                        }
-                        placeholder="yourusername"
-                        className="flex-1 bg-transparent px-2 py-3 text-sm focus:outline-none"
-                    />
-                </div>
-
-                {errors.twitter && (
-                    <p className="text-red-500 text-xs mt-2">
-                        {errors.twitter}
-                    </p>
-                )}
-            </div>
-
         </div>
     )
 })

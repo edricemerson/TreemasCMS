@@ -1,5 +1,4 @@
 import Button from "../../Button"
-import ImageUploadSolutionPeople from "../component/ImageUploadSolutionPeople"
 import { useData } from "../DataStruct/Context"
 import { useState, forwardRef, useImperativeHandle } from "react"
 
@@ -17,8 +16,9 @@ const SolutionForm = forwardRef((_, ref) => {
                 {
                     id: crypto.randomUUID(),
                     title: "",
+                    icon: "",
                     description: "",
-                    image: "",
+                    // image dihapus dari sini
                 },
             ],
         })
@@ -40,20 +40,18 @@ const SolutionForm = forwardRef((_, ref) => {
         }
 
         contextData.solutions.forEach((solution, index) => {
+            const title = (solution.title || "").trim();
+            const desc = (solution.description || "").trim();
 
-            if (!solution.image) {
-                const key = `solutionImage-${index}`
-                newErrors[key] = "Solution image is required"
-                setFirst(key)
-            }
+            // Validasi image dihapus
 
-            if (!solution.title.trim()) {
+            if (!title) {
                 const key = `solutionTitle-${index}`
                 newErrors[key] = "Solution title is required"
                 setFirst(key)
             }
 
-            if (!solution.description.trim()) {
+            if (!desc) {
                 const key = `solutionDescription-${index}`
                 newErrors[key] = "Solution description is required"
                 setFirst(key)
@@ -98,9 +96,9 @@ const SolutionForm = forwardRef((_, ref) => {
 
             <div className="flex flex-col gap-6">
                 {contextData.solutions.map((solution, index) => (
-                    <div key={solution.id} className="border rounded-2xl p-4 bg-gray-50">
+                    <div key={solution.id} className="border rounded-2xl p-5 bg-gray-50 flex flex-col gap-4">
 
-                        <div className="flex justify-between items-center mb-6">
+                        <div className="flex justify-between items-center border-b pb-3 mb-2">
                             <p className="font-semibold text-gray-700 text-sm">
                                 Solution {index + 1}
                             </p>
@@ -108,125 +106,106 @@ const SolutionForm = forwardRef((_, ref) => {
                             <Button
                                 type="button"
                                 onClick={() => handleDeleteSolution(solution.id)}
-                                className="text-red-500 hover:text-red-600 transition"
+                                className="text-red-500 hover:text-red-600 transition font-medium text-sm"
                             >
                                 Delete
                             </Button>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-6">
+                        <div data-error={`solutionTitle-${index}`}>
+                            <label className="font-semibold block mb-2 text-sm text-gray-700">
+                                Title
+                            </label>
 
-                            <div data-error={`solutionImage-${index}`}>
-                                <label className="font-semibold block mb-2 text-sm">
-                                    Image
-                                </label>
+                            <input
+                                type="text"
+                                value={solution.title}
+                                onChange={(e) => {
+                                    const value = e.target.value
+                                    const updated = [...contextData.solutions]
+                                    updated[index].title = value
+                                    setContextData({ ...contextData, solutions: updated })
 
-                                <ImageUploadSolutionPeople
-                                    value={solution.image}
-                                    onChangeImage={(img) => {
-                                        const updated = [...contextData.solutions]
-                                        updated[index].image = img || ""
-                                        setContextData({ ...contextData, solutions: updated })
+                                    if (value.trim()) {
+                                        setErrors(prev => {
+                                            const key = `solutionTitle-${index}`
+                                            if (!prev[key]) return prev
+                                            const updatedErr = { ...prev }
+                                            delete updatedErr[key]
+                                            return updatedErr
+                                        })
+                                    }
+                                }}
+                                className={`w-full bg-white border rounded-xl px-4 py-2.5 text-sm
+                                ${errors[`solutionTitle-${index}`]
+                                        ? "border-red-500 focus:ring-red-500"
+                                        : "border-gray-300 focus:ring-teal-500"}
+                                focus:outline-none focus:ring-2`}
+                            />
 
-                                        if (img) {
-                                            setErrors(prev => {
-                                                const key = `solutionImage-${index}`
-                                                if (!prev[key]) return prev
-                                                const updatedErr = { ...prev }
-                                                delete updatedErr[key]
-                                                return updatedErr
-                                            })
-                                        }
-                                    }}
-                                />
-
-                                {errors[`solutionImage-${index}`] && (
-                                    <p className="text-red-500 text-xs mt-2">
-                                        {errors[`solutionImage-${index}`]}
-                                    </p>
-                                )}
-                            </div>
-
-                            <div>
-
-                                <div data-error={`solutionTitle-${index}`} className="mb-4">
-                                    <label className="font-semibold block mb-2 text-sm">
-                                        Title
-                                    </label>
-
-                                    <input
-                                        type="text"
-                                        value={solution.title}
-                                        onChange={(e) => {
-                                            const value = e.target.value
-                                            const updated = [...contextData.solutions]
-                                            updated[index].title = value
-                                            setContextData({ ...contextData, solutions: updated })
-
-                                            if (value.trim()) {
-                                                setErrors(prev => {
-                                                    const key = `solutionTitle-${index}`
-                                                    if (!prev[key]) return prev
-                                                    const updatedErr = { ...prev }
-                                                    delete updatedErr[key]
-                                                    return updatedErr
-                                                })
-                                            }
-                                        }}
-                                        className={`w-full bg-white border rounded-xl px-3 py-2 text-sm
-                                        ${errors[`solutionTitle-${index}`]
-                                                ? "border-red-500 focus:ring-red-500"
-                                                : "border-gray-300 focus:ring-teal-500"}
-                                        focus:outline-none focus:ring-2`}
-                                    />
-
-                                    {errors[`solutionTitle-${index}`] && (
-                                        <p className="text-red-500 text-xs mt-1">
-                                            {errors[`solutionTitle-${index}`]}
-                                        </p>
-                                    )}
-                                </div>
-
-                                <div data-error={`solutionDescription-${index}`}>
-                                    <label className="font-semibold block mb-2 text-sm">
-                                        Description
-                                    </label>
-
-                                    <textarea
-                                        rows={2}
-                                        value={solution.description}
-                                        onChange={(e) => {
-                                            const value = e.target.value
-                                            const updated = [...contextData.solutions]
-                                            updated[index].description = value
-                                            setContextData({ ...contextData, solutions: updated })
-
-                                            if (value.trim()) {
-                                                setErrors(prev => {
-                                                    const key = `solutionDescription-${index}`
-                                                    if (!prev[key]) return prev
-                                                    const updatedErr = { ...prev }
-                                                    delete updatedErr[key]
-                                                    return updatedErr
-                                                })
-                                            }
-                                        }}
-                                        className={`w-full bg-white border rounded-xl p-3 text-sm
-                                        ${errors[`solutionDescription-${index}`]
-                                                ? "border-red-500 focus:ring-red-500"
-                                                : "border-gray-300 focus:ring-teal-500"}
-                                        focus:outline-none focus:ring-2`}
-                                    />
-
-                                    {errors[`solutionDescription-${index}`] && (
-                                        <p className="text-red-500 text-xs mt-1">
-                                            {errors[`solutionDescription-${index}`]}
-                                        </p>
-                                    )}
-                                </div>
-
-                            </div>
+                            {errors[`solutionTitle-${index}`] && (
+                                <p className="text-red-500 text-xs mt-1">
+                                    {errors[`solutionTitle-${index}`]}
+                                </p>
+                            )}
                         </div>
+
+                        <div data-error={`solutionIcon-${index}`}>
+                            <label className="font-semibold block mb-2 text-sm text-gray-700">
+                                Icon Name
+                            </label>
+                            <input
+                                type="text"
+                                value={solution.icon || ""}
+                                onChange={(e) => {
+                                    const value = e.target.value;
+                                    const updated = [...contextData.solutions];
+                                    updated[index].icon = value;
+                                    setContextData({ ...contextData, solutions: updated });
+                                }}
+                                placeholder="e.g. FaChartLine, lucide-briefcase"
+                                className="w-full bg-white border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                            />
+                        </div>
+
+                        <div data-error={`solutionDescription-${index}`}>
+                            <label className="font-semibold block mb-2 text-sm text-gray-700">
+                                Description
+                            </label>
+
+                            <textarea
+                                rows={3}
+                                value={solution.description}
+                                onChange={(e) => {
+                                    const value = e.target.value
+                                    const updated = [...contextData.solutions]
+                                    updated[index].description = value
+                                    setContextData({ ...contextData, solutions: updated })
+
+                                    if (value.trim()) {
+                                        setErrors(prev => {
+                                            const key = `solutionDescription-${index}`
+                                            if (!prev[key]) return prev
+                                            const updatedErr = { ...prev }
+                                            delete updatedErr[key]
+                                            return updatedErr
+                                        })
+                                    }
+                                }}
+                                className={`w-full bg-white border rounded-xl px-4 py-3 text-sm resize-none
+                                ${errors[`solutionDescription-${index}`]
+                                        ? "border-red-500 focus:ring-red-500"
+                                        : "border-gray-300 focus:ring-teal-500"}
+                                focus:outline-none focus:ring-2`}
+                            />
+
+                            {errors[`solutionDescription-${index}`] && (
+                                <p className="text-red-500 text-xs mt-1">
+                                    {errors[`solutionDescription-${index}`]}
+                                </p>
+                            )}
+                        </div>
+
                     </div>
                 ))}
             </div>

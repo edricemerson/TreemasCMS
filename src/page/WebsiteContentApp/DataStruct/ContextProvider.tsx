@@ -3,17 +3,29 @@ import { Context } from "./Context"
 import type { AllDataType } from "./ContextType"
 import { useLocation } from "react-router-dom"
 
+export const parseLocalized = (val: any): { en: string; id: string } => {
+    if (typeof val === 'object' && val !== null) return { en: val.en || "", id: val.id || "" };
+    try {
+        const parsed = JSON.parse(val);
+        if (parsed.en !== undefined || parsed.id !== undefined) return parsed;
+        return { en: val || "", id: "" }; 
+    } catch {
+        return { en: val || "", id: "" }; 
+    }
+};
 export const ContextProvider = ({ children }: { children: React.ReactNode }) => {
     const location = useLocation();
+    
+   
     const [contextData, setContextData] = useState<AllDataType>({
         title: "",
         description: "",
         backgroundImage: "",
         components: [
-            { id: "comp1", label: "", image: "" },
-            { id: "comp2", label: "", image: "" },
-            { id: "comp3", label: "", image: "" },
-            { id: "comp4", label: "", image: "" },
+            { id: "comp1", label: "", icon: "" },
+            { id: "comp2", label: "", icon: "" },
+            { id: "comp3", label: "", icon: "" },
+            { id: "comp4", label: "", icon: "" },
         ],
         solutions: [],
         people: [],
@@ -36,11 +48,7 @@ export const ContextProvider = ({ children }: { children: React.ReactNode }) => 
             backgroundImage: "",
             buttonLink: "",
         },
-        social: {
-            linkedin: "",
-            instagram: "",
-            twitter: "",
-        },
+        social: [], // Sudah jadi array dinamis
     })
 
     useEffect(() => {
@@ -49,19 +57,27 @@ export const ContextProvider = ({ children }: { children: React.ReactNode }) => 
             if (!token || location.pathname === "/home") return;
 
             try {
-            const headers = { "Authorization" : `Bearer ${token}`};
-            const [settingsRes, solutionsRes, teamRes] = await Promise.all([
-                fetch("http://localhost:3000/api/cms/settings", { headers }),
-                fetch("http://localhost:3000/api/cms/solutions", { headers }),
-                fetch("http://localhost:3000/api/cms/team", { headers })
-            ]); 
+                const headers = { "Authorization" : `Bearer ${token}`};
+                const [settingsRes, solutionsRes, teamRes] = await Promise.all([
+                    fetch("http://localhost:3000/api/cms/settings", { headers }),
+                    fetch("http://localhost:3000/api/cms/solutions", { headers }),
+                    fetch("http://localhost:3000/api/cms/team", { headers })
+                ]); 
 
                 const settingsData = await settingsRes.json();
                 const solutionsData = await solutionsRes.json();
                 const teamData = await teamRes.json();
-
+                
                 if (settingsData.success) {
                     const dbSettings = settingsData.data;
+                    
+                    const loadedSocial = Array.isArray(dbSettings.social_links)
+                        ? dbSettings.social_links
+                        : [
+                            { platform: "linkedin", url: dbSettings.social_linkedin || "", icon: "linkedin" },
+                            { platform: "instagram", url: dbSettings.social_instagram || "", icon: "instagram" },
+                            { platform: "x", url: dbSettings.social_x || "", icon: "x" }
+                          ].filter(item => item.url && item.url.trim() !== ""); 
 
                     setContextData((prev) => ({
                         ...prev,
@@ -69,7 +85,6 @@ export const ContextProvider = ({ children }: { children: React.ReactNode }) => 
                         description: dbSettings.hero_desc || prev.description,
                         backgroundImage: dbSettings.hero_bg_image || prev.backgroundImage,
                         
-                   
                         components: Array.isArray(dbSettings.hero_components) ? dbSettings.hero_components : prev.components,
                         
                         about: dbSettings.about_content || prev.about,
@@ -79,7 +94,7 @@ export const ContextProvider = ({ children }: { children: React.ReactNode }) => 
                             description: dbSettings.preFooter_desc || prev.prefooter.description,
                             backgroundImage: dbSettings.preFooter_bg || prev.prefooter.backgroundImage,
                             buttonLink: dbSettings.preFooter_btn_link || prev.prefooter.buttonLink,
-        },
+                        },
 
                         statistic: {
                             ...prev.statistic,
@@ -96,19 +111,16 @@ export const ContextProvider = ({ children }: { children: React.ReactNode }) => 
                             address: dbSettings.contact_address || prev.contact.address,
                         },
                         
-                        social: {
-                            ...prev.social,
-                            linkedin: dbSettings.social_linkedin || prev.social.linkedin,
-                            instagram: dbSettings.social_instagram || prev.social.instagram,
-                            twitter: dbSettings.social_x || prev.social.twitter,
-                        },
+                        
+                        social: loadedSocial, 
 
                         solutions: solutionsData.success && solutionsData.data.length > 0
                             ? solutionsData.data.map((s: any) => ({
                                 id: s.id.toString(),
                                 title: s.title,
                                 description: s.description,
-                                image: s.image_url
+                                image: s.image_url,
+                                icon: s.icon || "" 
                             }))
                             : prev.solutions,
 
@@ -116,12 +128,13 @@ export const ContextProvider = ({ children }: { children: React.ReactNode }) => 
                             ? teamData.data.map((t: any) => ({
                                 id: t.id.toString(),
                                 name: t.name,
-                                labelName: t.label,       
-                                position: t.label,         
-                                description: t.description, 
-                                image: t.image_url
+                                labelName: t.label || "",       
+                                position: t.title || "", 
+                                description: t.description || "", 
+                                image: t.image_url || ""
                             }))
                             : prev.people
+                            
                     }));
                 }
             } catch (error) {

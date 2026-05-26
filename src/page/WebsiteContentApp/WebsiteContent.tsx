@@ -64,10 +64,11 @@ function WebsiteContent() {
 
                 const teamPayload = {
                     team: contextData.people.map((person, i) => ({
-                        name: person.name,
-                        label: person.position,       
-                        description: person.description, 
-                        image_base64: person.image,
+                        name: person.name || "",
+                        position: person.position || "",    
+                        labelName: person.labelName || "",  
+                        description: person.description || "", 
+                        image_base64: person.image || "",
                         display_order: i + 1
                     }))
                 };
@@ -83,8 +84,8 @@ function WebsiteContent() {
                     solutions: contextData.solutions.map((sol, i) => ({
                         title: sol.title || "",
                         description: sol.description || "",
-                        image_base64: sol.image || "",
-                        display_order: i + 1
+                        display_order: i + 1,
+                        icon: sol.icon || ""
                     }))
                 };
 
@@ -119,9 +120,7 @@ function WebsiteContent() {
                         contact_phone: contextData.contact.phone,
                         contact_address: contextData.contact.address,
 
-                        social_linkedin: contextData.social.linkedin,
-                        social_instagram: contextData.social.instagram,
-                        social_x: contextData.social.twitter
+                        social_links: contextData.social
                     }
                 };
 

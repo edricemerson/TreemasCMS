@@ -1,14 +1,14 @@
 export type HeroComponent = {
     id: string
     label: string
-    image: string
+    icon: string
 }
 
 export type SolutionType = {
     id: string
     title: string
+    icon: string
     description: string
-    image: string
 }
 
 export type PeopleType = {
@@ -41,11 +41,12 @@ export type StatisticsType = {
     satisfaction: number
 }
 
-export type SocialType = {
-    linkedin: string
-    instagram: string
-    twitter: string
-}
+export type SocialItemType = {
+    platform: string;
+    url: string;
+    icon: string;
+};
+
 
 export type AllDataType = {
     title: string
@@ -58,5 +59,5 @@ export type AllDataType = {
     statistic: StatisticsType
     contact: ContactType
     prefooter: PrefooterType
-    social: SocialType
+    social: SocialItemType[]
 }

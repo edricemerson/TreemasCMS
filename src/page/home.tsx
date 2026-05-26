@@ -284,12 +284,12 @@ function Home() {
                 </div>
             </div>
 
-            {/* --- FOOTER --- */}
+           {/* --- FOOTER --- */}
             <footer>
                 <div className="bg-gray-100 border-t-2 px-6 md:px-12 lg:px-24 py-10 flex flex-col md:flex-row gap-10">
                     <div className="flex-1">
                         <div className="flex items-center gap-3">
-                            <img src="/logo.svg" className="w-12" />
+                            <img src="/logo.svg" className="w-12" alt="TMS CSR Logo" />
                             <div className="font-bold text-xl">TMS CSR</div>
                         </div>
                         <p className="text-gray-600 text-sm leading-relaxed mt-3">
@@ -310,30 +310,43 @@ function Home() {
                     <div className="flex-1">
                         <div className="font-bold text-lg mb-3">Follow Us</div>
                         <div className="flex flex-wrap gap-3">
-                            {landingData.social.linkedin && (
-                                <a href={landingData.social.linkedin} target="_blank" rel="noopener noreferrer" className="bg-white p-2 rounded-lg text-gray-600 w-12 mx-2 hover:bg-teal-600 hover:text-white transition duration-300">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                                        <path d="M18.44,3.06H5.56a2.507,2.507,0,0,0-2.5,2.5V18.44a2.507,2.507,0,0,0,2.5,2.5H18.44a2.5,2.5,0,0,0,2.5-2.5V5.56A2.5,2.5,0,0,0,18.44,3.06Zm1.5,15.38a1.511,1.511,0,0,1-1.5,1.5H5.56a1.511,1.511,0,0,1-1.5-1.5V5.56a1.511,1.511,0,0,1,1.5-1.5H18.44a1.511,1.511,0,0,1,1.5,1.5Z" />
-                                        <path d="M6.376,10.748a1,1,0,1,1,2,0v6.5a1,1,0,0,1-2,0Z" />
-                                        <circle cx="7.376" cy="6.744" r="1" />
-                                        <path d="M17.62,13.37v3.88a1,1,0,1,1-2,0V13.37a1.615,1.615,0,1,0-3.23,0v3.88a1,1,0,0,1-2,0v-6.5a1.016,1.016,0,0,1,1-1,.94.94,0,0,1,.84.47,3.609,3.609,0,0,1,5.39,3.15Z" />
-                                    </svg>
-                                </a>
-                            )}
-                            {landingData.social.instagram && (
-                                <a href={landingData.social.instagram} target="_blank" rel="noopener noreferrer" className="bg-white p-2 rounded-lg text-gray-600 w-12 mx-2 hover:bg-teal-600 hover:text-white transition duration-300">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                                        <path d="M7.8,2H16.2C19.4,2 22,4.6 22,7.8V16.2A5.8,5.8 0 0,1 16.2,22H7.8C4.6,22 2,19.4 2,16.2V7.8A5.8,5.8 0 0,1 7.8,2M7.6,4A3.6,3.6 0 0,0 4,7.6V16.4C4,18.39 5.61,20 7.6,20H16.4A3.6,3.6 0 0,0 20,16.4V7.6C20,5.61 18.39,4 16.4,4H7.6M17.25,5.5A1.25,1.25 0 0,1 18.5,6.75A1.25,1.25 0 0,1 17.25,8A1.25,1.25 0 0,1 16,6.75A1.25,1.25 0 0,1 17.25,5.5M12,7A5,5 0 0,1 17,12A5,5 0 0,1 12,17A5,5 0 0,1 7,12A5,5 0 0,1 12,7M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9Z" />
-                                    </svg>
-                                </a>
-                            )}
-                            {landingData.social.twitter && (
-                                <a href={landingData.social.twitter} target="_blank" rel="noopener noreferrer" className="bg-white p-2 rounded-lg text-gray-600 w-12 mx-2 hover:bg-teal-600 hover:text-white transition duration-300">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" fill="currentColor" fillRule="evenodd">
-                                        <path d="M818 800 498.11 333.745l.546.437L787.084 0h-96.385L455.738 272 269.15 0H16.367l298.648 435.31-.036-.037L0 800h96.385l261.222-302.618L565.217 800zM230.96 72.727l448.827 654.546h-76.38L154.217 72.727z" transform="translate(103 112)" />
-                                    </svg>
-                                </a>
-                            )}
+                            {/* 🔴 PERBAIKAN: Looping array social dinamis */}
+                            {landingData.social && Array.isArray(landingData.social) && landingData.social.map((item: any, index: number) => {
+                                // Jangan tampilkan jika URL kosong
+                                if (!item.url || item.url.trim() === "") return null;
+
+                                const platform = item.platform.toLowerCase().trim();
+
+                                return (
+                                    <a 
+                                        key={index} 
+                                        href={item.url} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer" 
+                                        className="bg-white p-2 rounded-lg text-gray-600 w-12 mx-2 hover:bg-teal-600 hover:text-white transition duration-300 flex items-center justify-center"
+                                    >
+                                        {/* Render Icon berdasarkan input platform di CMS */}
+                                        {platform === 'linkedin' && (
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-full h-full">
+                                                <path d="M18.44,3.06H5.56a2.507,2.507,0,0,0-2.5,2.5V18.44a2.507,2.507,0,0,0,2.5,2.5H18.44a2.5,2.5,0,0,0,2.5-2.5V5.56A2.5,2.5,0,0,0,18.44,3.06Zm1.5,15.38a1.511,1.511,0,0,1-1.5,1.5H5.56a1.511,1.511,0,0,1-1.5-1.5V5.56a1.511,1.511,0,0,1,1.5-1.5H18.44a1.511,1.511,0,0,1,1.5,1.5Z" />
+                                                <path d="M6.376,10.748a1,1,0,1,1,2,0v6.5a1,1,0,0,1-2,0Z" />
+                                                <circle cx="7.376" cy="6.744" r="1" />
+                                                <path d="M17.62,13.37v3.88a1,1,0,1,1-2,0V13.37a1.615,1.615,0,1,0-3.23,0v3.88a1,1,0,0,1-2,0v-6.5a1.016,1.016,0,0,1,1-1,.94.94,0,0,1,.84.47,3.609,3.609,0,0,1,5.39,3.15Z" />
+                                            </svg>
+                                        )}
+                                        {platform === 'instagram' && (
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-full h-full">
+                                                <path d="M7.8,2H16.2C19.4,2 22,4.6 22,7.8V16.2A5.8,5.8 0 0,1 16.2,22H7.8C4.6,22 2,19.4 2,16.2V7.8A5.8,5.8 0 0,1 7.8,2M7.6,4A3.6,3.6 0 0,0 4,7.6V16.4C4,18.39 5.61,20 7.6,20H16.4A3.6,3.6 0 0,0 20,16.4V7.6C20,5.61 18.39,4 16.4,4H7.6M17.25,5.5A1.25,1.25 0 0,1 18.5,6.75A1.25,1.25 0 0,1 17.25,8A1.25,1.25 0 0,1 16,6.75A1.25,1.25 0 0,1 17.25,5.5M12,7A5,5 0 0,1 17,12A5,5 0 0,1 12,17A5,5 0 0,1 7,12A5,5 0 0,1 12,7M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9Z" />
+                                            </svg>
+                                        )}
+                                        {(platform === 'x' || platform === 'twitter') && (
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" fill="currentColor" fillRule="evenodd" className="w-full h-full">
+                                                <path d="M818 800 498.11 333.745l.546.437L787.084 0h-96.385L455.738 272 269.15 0H16.367l298.648 435.31-.036-.037L0 800h96.385l261.222-302.618L565.217 800zM230.96 72.727l448.827 654.546h-76.38L154.217 72.727z" transform="translate(103 112)" />
+                                            </svg>
+                                        )}
+                                    </a>
+                                )
+                            })}
                         </div>
                     </div>
                 </div>

@@ -1,35 +1,12 @@
-import ImageUploadHero from "../component/ImageUploadHero"
-import ImageUploadComponent from "../component/ImageUploadComponent"
-import { useData } from "../DataStruct/Context"
 import { useState, forwardRef, useImperativeHandle } from "react"
+import { useData } from "../DataStruct/Context"
 import Button from "../../Button"
+// Ganti import ini dengan komponen Image Upload yang biasa kamu pakai untuk background hero
+import ImageUploadHero from "../component/ImageUploadSolutionPeople" 
 
 const HeroForm = forwardRef((_, ref) => {
     const { contextData, setContextData } = useData()
     const [errors, setErrors] = useState<Record<string, string>>({})
-
-    const handleAddComponent = () => {
-        if (contextData.components.length >= 4) return
-
-        setContextData({
-            ...contextData,
-            components: [
-                ...contextData.components,
-                {
-                    id: crypto.randomUUID(),
-                    label: "",
-                    image: "",
-                },
-            ],
-        })
-    }
-
-    const handleDeleteComponent = (id: string) => {
-        setContextData({
-            ...contextData,
-            components: contextData.components.filter(c => c.id !== id),
-        })
-    }
 
     const validateHero = () => {
         const newErrors: Record<string, string> = {}
@@ -39,41 +16,36 @@ const HeroForm = forwardRef((_, ref) => {
             if (!firstErrorKey) firstErrorKey = key
         }
 
-        if (!contextData.title.trim()) {
-            newErrors.title = "Hero title is required"
-            setFirst("title")
+        // Validasi Hero Utama
+        if (!contextData.title?.trim()) {
+            newErrors["heroTitle"] = "Hero title is required"
+            setFirst("heroTitle")
         }
-
-        if (!contextData.description.trim()) {
-            newErrors.description = "Hero description is required"
-            setFirst("description")
+        if (!contextData.description?.trim()) {
+            newErrors["heroDesc"] = "Hero description is required"
+            setFirst("heroDesc")
         }
-
         if (!contextData.backgroundImage) {
-            newErrors.backgroundImage = "Background image is required"
-            setFirst("backgroundImage")
+            newErrors["heroBg"] = "Hero background image is required"
+            setFirst("heroBg")
         }
 
+        // Validasi Hero Components (Sekarang cek icon, bukan image)
         contextData.components.forEach((comp, index) => {
-            if (!comp.label.trim()) {
-                newErrors[`componentLabel-${index}`] =
-                    "Component label is required"
-                setFirst(`componentLabel-${index}`)
+            if (!comp.label?.trim()) {
+                newErrors[`compLabel-${index}`] = "Component label is required"
+                setFirst(`compLabel-${index}`)
             }
-
-            if (!comp.image) {
-                newErrors[`componentImage-${index}`] =
-                    "Component image is required"
-                setFirst(`componentImage-${index}`)
+            if (!comp.icon?.trim()) {
+                newErrors[`compIcon-${index}`] = "Component icon is required"
+                setFirst(`compIcon-${index}`)
             }
         })
 
         setErrors(newErrors)
 
         if (firstErrorKey) {
-            const element = document.querySelector(
-                `[data-error="${firstErrorKey}"]`
-            )
+            const element = document.querySelector(`[data-error="${firstErrorKey}"]`)
             element?.scrollIntoView({ behavior: "smooth", block: "center" })
         }
 
@@ -84,222 +56,163 @@ const HeroForm = forwardRef((_, ref) => {
         validate: validateHero,
     }))
 
+    const handleAddComponent = () => {
+        if (contextData.components.length >= 4) return
+        setContextData({
+            ...contextData,
+            components: [
+                ...contextData.components,
+                { id: crypto.randomUUID(), label: "", icon: "" }
+            ]
+        })
+    }
+
+    const handleRemoveComponent = (indexToRemove: number) => {
+        setContextData({
+            ...contextData,
+            components: contextData.components.filter((_, idx) => idx !== indexToRemove)
+        })
+    }
+
     return (
-        <div className="min-w-5xl flex flex-col bg-white mt-5 rounded-2xl border">
-            <form className="p-4">
-                <p className="font-semibold mb-4">Hero Section</p>
+        <div className="bg-white rounded-2xl p-6 mt-6 border">
+            <h2 className="text-base font-semibold mb-6">Hero Section</h2>
 
-                <div data-error="title" className="mb-4">
-                    <label className="text-sm font-semibold block mb-1">
-                        Hero Title
-                    </label>
-
+            {/* --- HERO MAIN SECTION --- */}
+            <div className="flex flex-col gap-4 mb-8 border-b pb-8">
+                <div data-error="heroTitle">
+                    <label className="font-semibold block mb-2 text-sm text-gray-700">Hero Title</label>
                     <input
                         type="text"
                         value={contextData.title}
                         onChange={(e) => {
-                            const value = e.target.value
-
-                            setContextData({ ...contextData, title: value })
-
-                            if (value.trim().length > 0) {
-                                setErrors(prev => {
-                                    if (!prev.title) return prev
-                                    const updated = { ...prev }
-                                    delete updated.title
-                                    return updated
-                                })
+                            setContextData({ ...contextData, title: e.target.value })
+                            if (e.target.value.trim()) {
+                                const newErr = { ...errors }
+                                delete newErr["heroTitle"]
+                                setErrors(newErr)
                             }
                         }}
-                        className={`w-full bg-gray-100 border rounded-xl p-2 text-sm
-                        ${errors.title
-                                ? "border-red-500 focus:ring-red-500"
-                                : "border-gray-300 focus:ring-teal-500"}
-                        focus:outline-none focus:ring-2`}
+                        className={`w-full bg-white border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 ${errors["heroTitle"] ? "border-red-500 focus:ring-red-500" : "border-gray-300 focus:ring-teal-500"}`}
                     />
-
-                    {errors.title && (
-                        <p className="text-red-500 text-xs mt-1">
-                            {errors.title}
-                        </p>
-                    )}
+                    {errors["heroTitle"] && <p className="text-red-500 text-xs mt-1">{errors["heroTitle"]}</p>}
                 </div>
 
-                {/* HERO DESCRIPTION */}
-                <div data-error="description" className="mb-4">
-                    <label className="text-sm font-semibold block mb-1">
-                        Hero Description
-                    </label>
-
+                <div data-error="heroDesc">
+                    <label className="font-semibold block mb-2 text-sm text-gray-700">Hero Description</label>
                     <textarea
                         rows={2}
                         value={contextData.description}
                         onChange={(e) => {
-                            const value = e.target.value
-
-                            setContextData({ ...contextData, description: value })
-
-                            if (value.trim().length > 0) {
-                                setErrors(prev => {
-                                    if (!prev.description) return prev
-                                    const updated = { ...prev }
-                                    delete updated.description
-                                    return updated
-                                })
+                            setContextData({ ...contextData, description: e.target.value })
+                            if (e.target.value.trim()) {
+                                const newErr = { ...errors }
+                                delete newErr["heroDesc"]
+                                setErrors(newErr)
                             }
                         }}
-                        className={`w-full bg-gray-100 border rounded-xl p-2 text-sm
-                        ${errors.description
-                                ? "border-red-500 focus:ring-red-500"
-                                : "border-gray-300 focus:ring-teal-500"}
-                        focus:outline-none focus:ring-2`}
+                        className={`w-full bg-white border rounded-xl px-4 py-2.5 text-sm resize-none focus:outline-none focus:ring-2 ${errors["heroDesc"] ? "border-red-500 focus:ring-red-500" : "border-gray-300 focus:ring-teal-500"}`}
                     />
-
-                    {errors.description && (
-                        <p className="text-red-500 text-xs mt-1">
-                            {errors.description}
-                        </p>
-                    )}
+                    {errors["heroDesc"] && <p className="text-red-500 text-xs mt-1">{errors["heroDesc"]}</p>}
                 </div>
 
-                <div data-error="backgroundImage" className="mb-6">
-                    <ImageUploadHero
-                        title="Background Image"
+                <div data-error="heroBg">
+                    <label className="font-semibold block mb-2 text-sm text-gray-700">Background Image</label>
+                    <ImageUploadHero 
                         value={contextData.backgroundImage}
-                        showRemove
                         onChangeImage={(img) => {
-                            setContextData({
-                                ...contextData,
-                                backgroundImage: img || "",
-                            })
-
+                            setContextData({ ...contextData, backgroundImage: img || "" })
                             if (img) {
-                                setErrors(prev => {
-                                    if (!prev.backgroundImage) return prev
-                                    const updated = { ...prev }
-                                    delete updated.backgroundImage
-                                    return updated
-                                })
+                                const newErr = { ...errors }
+                                delete newErr["heroBg"]
+                                setErrors(newErr)
                             }
                         }}
                     />
-
-                    {errors.backgroundImage && (
-                        <p className="text-red-500 text-xs mt-2">
-                            {errors.backgroundImage}
-                        </p>
-                    )}
+                    {errors["heroBg"] && <p className="text-red-500 text-xs mt-1">{errors["heroBg"]}</p>}
                 </div>
+            </div>
 
-                <div className="mt-6">
-                    <div className="flex justify-between items-center mb-4">
-                        <h3 className="text-sm font-semibold">
-                            Hero Components
-                        </h3>
+            {/* --- HERO COMPONENTS SECTION --- */}
+            <div className="flex justify-between items-center mb-4">
+                <h3 className="font-semibold text-sm text-gray-700">Hero Components</h3>
+                <Button
+                    type="button"
+                    onClick={handleAddComponent}
+                    disabled={contextData.components.length >= 4}
+                    className={`text-xs px-4 py-2 rounded-xl text-white transition ${
+                        contextData.components.length >= 4 ? "bg-gray-300 cursor-not-allowed" : "bg-[#0B0B23] hover:bg-[#1a1a3a]"
+                    }`}
+                >
+                    Add Component
+                </Button>
+            </div>
 
-                        <Button
-                            type="button"
-                            onClick={handleAddComponent}
-                            disabled={contextData.components.length >= 4}
-                            className={`flex items-center gap-2 px-3 py-1 text-sm rounded-lg text-white transition font-semibold
-                            ${contextData.components.length >= 4
-                                    ? "bg-gray-300 cursor-not-allowed"
-                                    : "bg-[#0B0B23] hover:bg-[#1a1a3a]"}`}
-                        >
-                            Add Component
-                        </Button>
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+                {contextData.components.map((comp, index) => (
+                    <div key={comp.id} className="border rounded-2xl p-4 bg-gray-50 flex flex-col gap-3 relative">
+                        
+                        <div className="flex justify-between items-center mb-1">
+                            <span className="font-semibold text-xs text-gray-500">Component {index + 1}</span>
+                            <button
+                                type="button"
+                                onClick={() => handleRemoveComponent(index)}
+                                className="text-red-500 hover:text-red-700 font-medium text-xs transition"
+                            >
+                                Remove
+                            </button>
+                        </div>
+
+                        <div data-error={`compLabel-${index}`}>
+                            <label className="font-semibold block mb-1 text-xs text-gray-700">Label</label>
+                            <input
+                                type="text"
+                                value={comp.label}
+                                placeholder="e.g. Trusted"
+                                onChange={(e) => {
+                                    const value = e.target.value
+                                    const updated = [...contextData.components]
+                                    updated[index].label = value
+                                    setContextData({ ...contextData, components: updated })
+                                    
+                                    if (value.trim()) {
+                                        const newErr = { ...errors }
+                                        delete newErr[`compLabel-${index}`]
+                                        setErrors(newErr)
+                                    }
+                                }}
+                                className={`w-full bg-white border rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 ${errors[`compLabel-${index}`] ? "border-red-500 focus:ring-red-500" : "border-gray-300 focus:ring-teal-500"}`}
+                            />
+                            {errors[`compLabel-${index}`] && <p className="text-red-500 text-[10px] mt-1">{errors[`compLabel-${index}`]}</p>}
+                        </div>
+
+                        <div data-error={`compIcon-${index}`}>
+                            <label className="font-semibold block mb-1 text-xs text-gray-700">Icon Name</label>
+                            <input
+                                type="text"
+                                value={comp.icon || ""}
+                                placeholder="e.g. FaShieldAlt"
+                                onChange={(e) => {
+                                    const value = e.target.value
+                                    const updated = [...contextData.components]
+                                    updated[index].icon = value
+                                    setContextData({ ...contextData, components: updated })
+
+                                    if (value.trim()) {
+                                        const newErr = { ...errors }
+                                        delete newErr[`compIcon-${index}`]
+                                        setErrors(newErr)
+                                    }
+                                }}
+                                className={`w-full bg-white border rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 ${errors[`compIcon-${index}`] ? "border-red-500 focus:ring-red-500" : "border-gray-300 focus:ring-teal-500"}`}
+                            />
+                            {errors[`compIcon-${index}`] && <p className="text-red-500 text-[10px] mt-1">{errors[`compIcon-${index}`]}</p>}
+                        </div>
+
                     </div>
+                ))}
+            </div>
 
-                    <div className="grid grid-cols-4 gap-6">
-                        {contextData.components.map((item, index) => (
-                            <div key={item.id} className="relative">
-
-                                <Button
-                                    type="button"
-                                    onClick={() => handleDeleteComponent(item.id)}
-                                    className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-2 py-1 rounded-md"
-                                >
-                                    ✕
-                                </Button>
-
-                                <label className="text-sm font-semibold block mb-1">
-                                    Component {index + 1}
-                                </label>
-
-                                <div data-error={`componentLabel-${index}`}>
-                                    <input
-                                        type="text"
-                                        value={item.label}
-                                        onChange={(e) => {
-                                            const value = e.target.value
-                                            const updatedComponents = [...contextData.components]
-                                            updatedComponents[index].label = value
-
-                                            setContextData({
-                                                ...contextData,
-                                                components: updatedComponents,
-                                            })
-
-                                            if (value.trim().length > 0) {
-                                                setErrors(prev => {
-                                                    const key = `componentLabel-${index}`
-                                                    if (!prev[key]) return prev
-                                                    const updated = { ...prev }
-                                                    delete updated[key]
-                                                    return updated
-                                                })
-                                            }
-                                        }}
-                                        className={`w-full bg-gray-100 border rounded-xl p-2 text-sm mb-1
-                                        ${errors[`componentLabel-${index}`]
-                                                ? "border-red-500 focus:ring-red-500"
-                                                : "border-gray-300 focus:ring-teal-500"}
-                                        focus:outline-none focus:ring-2`}
-                                    />
-
-                                    {errors[`componentLabel-${index}`] && (
-                                        <p className="text-red-500 text-xs mb-2">
-                                            {errors[`componentLabel-${index}`]}
-                                        </p>
-                                    )}
-                                </div>
-
-                                <div data-error={`componentImage-${index}`}>
-                                    <ImageUploadComponent
-                                        value={item.image}
-                                        onChangeImage={(img) => {
-                                            const updatedComponents = [...contextData.components]
-                                            updatedComponents[index].image = img || ""
-
-                                            setContextData({
-                                                ...contextData,
-                                                components: updatedComponents,
-                                            })
-
-                                            if (img) {
-                                                setErrors(prev => {
-                                                    const key = `componentImage-${index}`
-                                                    if (!prev[key]) return prev
-                                                    const updated = { ...prev }
-                                                    delete updated[key]
-                                                    return updated
-                                                })
-                                            }
-                                        }}
-                                    />
-
-                                    {errors[`componentImage-${index}`] && (
-                                        <p className="text-red-500 text-xs mt-1">
-                                            {errors[`componentImage-${index}`]}
-                                        </p>
-                                    )}
-                                </div>
-
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </form>
         </div>
     )
 })
