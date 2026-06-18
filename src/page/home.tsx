@@ -1,24 +1,30 @@
 import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 
 function Home() {
     const [menuOpen, setMenuOpen] = useState(false)
- //   const navigate = useNavigate()
+    const [searchParams, setSearchParams] = useSearchParams();
+
+    const urlLang = searchParams.get("lang")?.toUpperCase();
+    const lang = urlLang === 'ID' ? 'ID' : 'EN';
+
+    const changeLanguage = (newLang: 'EN' | 'ID') => {
+        setSearchParams({ lang: newLang.toLowerCase() });
+    };
 
     const [landingData, setLandingData] = useState<any>({
         isLoading: true,
-        title: "",
-        description: "",
+        title_en: "", title_id: "",
+        description_en: "", description_id: "",
         backgroundImage: "",
         components: [],
-        about: "",
+        about_en: "", about_id: "",
         statistic: { businesses: 0, provinces: 0, areas: 0, satisfaction: 0 },
         contact: { email: "", phone: "", address: "" },
-        prefooter: { title1: "", title2: "", description: "", backgroundImage: "", buttonLink: "" },
-        social: { linkedin: "", instagram: "", twitter: "" },
+        prefooter: { title1_en: "", title1_id: "", title2_en: "", title2_id: "", description_en: "", description_id: "", backgroundImage: "", buttonLink: "" },
+        social: [],
         solutions: [],
         people: []
-
     });
 
     useEffect(() => {
@@ -28,24 +34,51 @@ function Home() {
                 const result = await response.json();
 
                 if (result.success) {
-                    const { settings, solutions, team } = result.data;
+                    // 🔴 PERBAIKAN 1: Sabuk pengaman agar tidak crash kalau API kosong
+                    const settings = result.data?.settings || {};
+                    const solutions = result.data?.solutions || [];
+                    const team = result.data?.team || [];
+
+                    // 🔴 PERBAIKAN 2: Safe JSON Parse untuk Components
+                    let parsedComponents = [];
+                    try {
+                        parsedComponents = typeof settings.hero_components === 'string' 
+                            ? JSON.parse(settings.hero_components) 
+                            : settings.hero_components;
+                    } catch (e) {}
+                    if (!Array.isArray(parsedComponents)) parsedComponents = [];
+
+                    // 🔴 PERBAIKAN 3: Safe JSON Parse untuk Social Links
+                    let parsedSocial = [];
+                    try {
+                        parsedSocial = typeof settings.social_links === 'string' 
+                            ? JSON.parse(settings.social_links) 
+                            : settings.social_links;
+                    } catch (e) {}
+                    if (!Array.isArray(parsedSocial)) parsedSocial = [];
 
                     setLandingData({
                         isLoading: false,
-                        title: settings.hero_title || "",
-                        description: settings.hero_desc || "",
+                        title_en: settings.hero_title_en || "",
+                        title_id: settings.hero_title_id || "",
+                        description_en: settings.hero_desc_en || "",
+                        description_id: settings.hero_desc_id || "",
                         backgroundImage: settings.hero_bg_image || "",
-                        components: Array.isArray(settings.hero_components) ? settings.hero_components : [],
-                        
-                        about: settings.about_content || "",
-                       prefooter: {
-                            title1: settings.preFooter_title1 || "",
-                            title2: settings.preFooter_title2 || "",
-                            description: settings.preFooter_desc || "",
+                        components: parsedComponents,
+
+                        about_en: settings.about_content_en || "",
+                        about_id: settings.about_content_id || "",
+                        prefooter: {
+                            title1_en: settings.preFooter_title1_en || "",
+                            title1_id: settings.preFooter_title1_id || "",
+                            title2_en: settings.preFooter_title2_en || "",
+                            title2_id: settings.preFooter_title2_id || "",
+                            description_en: settings.preFooter_desc_en || "",
+                            description_id: settings.preFooter_desc_id || "",
                             backgroundImage: settings.preFooter_bg || "",
                             buttonLink: settings.preFooter_btn_link || "",
-                          },
-                        
+                        },
+
                         statistic: {
                             businesses: Number(settings.statistic_businesses) || 0,
                             provinces: Number(settings.statistic_provinces) || 0,
@@ -58,27 +91,29 @@ function Home() {
                             phone: settings.contact_phone || "",
                             address: settings.contact_address || "",
                         },
-                        
-                        social: {
-                            linkedin: settings.social_linkedin || "",
-                            instagram: settings.social_instagram || "",
-                            twitter: settings.social_x || "",
-                        },
+
+                        social: parsedSocial,
+
                         solutions: solutions.map((s: any) => ({
                             id: s.id,
-                            title: s.title,
-                            description: s.description,
-                            image: s.image_url
+                            title_en: s.title_en || "",
+                            title_id: s.title_id || "",
+                            description_en: s.description_en || "",
+                            description_id: s.description_id || "",
+                            image: s.image_url || "",
+                            icon: s.icon || ""
                         })),
 
-                        // Mapping team
                         people: team.map((t: any) => ({
                             id: t.id,
-                            name: t.name,
-                            position: t.title,
-                            image: t.image_url
+                            name: t.name || "",
+                            position_en: t.title_en || "",
+                            position_id: t.title_id || "",
+                            image: t.image_url || ""
                         }))
                     });
+                } else {
+                    setLandingData((prev: any) => ({ ...prev, isLoading: false }));
                 }
             } catch (error) {
                 console.error("Gagal menarik data Landing Page:", error);
@@ -92,13 +127,17 @@ function Home() {
     const scrollToSection = (id: string) => {
         const element = document.getElementById(id)
         if (!element) return
-        const yOffset = -120 
-        const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset
+        const yOffset = -120
+        const y = element.getBoundingClientRect().top + window.scrollY + yOffset
         window.scrollTo({ top: y, behavior: "smooth" })
     }
+
     if (landingData.isLoading) {
         return <div className="h-screen flex items-center justify-center text-2xl font-bold text-teal-600">Loading TMS CSR...</div>;
     }
+
+    // Fungsi helper bahasa
+    const t = (enText: string, idText: string) => lang === 'EN' ? (enText || "") : (idText || "");
 
     return (
         <>
@@ -114,6 +153,12 @@ function Home() {
                         <button onClick={() => scrollToSection("solution")} className="px-4 py-2 rounded-md hover:bg-gray-100 transition">Solutions</button>
                         <button onClick={() => scrollToSection("people")} className="px-4 py-2 rounded-md hover:bg-gray-100 transition">People</button>
                         <button onClick={() => scrollToSection("about")} className="px-4 py-2 rounded-md hover:bg-gray-100 transition">About</button>
+
+                        {/* Switcher Bahasa Desktop */}
+                        <div className="flex items-center ml-4 bg-gray-100 p-1 rounded-lg border">
+                            <button onClick={() => changeLanguage('EN')} className={`px-3 py-1 text-sm rounded font-bold ${lang === 'EN' ? 'bg-teal-600 text-white' : 'text-gray-500'}`}>EN</button>
+                            <button onClick={() => changeLanguage('ID')} className={`px-3 py-1 text-sm rounded font-bold ${lang === 'ID' ? 'bg-teal-600 text-white' : 'text-gray-500'}`}>ID</button>
+                        </div>
                     </div>
 
                     <button className="md:hidden flex flex-col gap-1" onClick={() => setMenuOpen(!menuOpen)}>
@@ -134,9 +179,15 @@ function Home() {
                     <div className='font-bold pl-6'>TMS CSR</div>
                 </div>
                 <div className="flex flex-col gap-4 px-6 pt-6 text-lg items-center">
-                    <button onClick={() => { scrollToSection("solution"), setMenuOpen(false)}} className="px-20 py-2 rounded-md hover:bg-gray-100 transition">Solution</button>
-                    <button onClick={() => { scrollToSection("people"), setMenuOpen(false)}} className="px-20 py-2 rounded-md hover:bg-gray-100 transition">People</button>
-                    <button onClick={() => { scrollToSection("about"), setMenuOpen(false)}} className="px-20 py-2 rounded-md hover:bg-gray-100 transition">About</button>
+                    {/* Switcher Bahasa Mobile */}
+                    <div className="flex items-center bg-gray-100 p-1 rounded-lg border w-full justify-center mb-2">
+                        <button onClick={() => changeLanguage('EN')} className={`flex-1 py-1 text-sm rounded font-bold ${lang === 'EN' ? 'bg-teal-600 text-white' : 'text-gray-500'}`}>EN</button>
+                        <button onClick={() => changeLanguage('ID')} className={`flex-1 py-1 text-sm rounded font-bold ${lang === 'ID' ? 'bg-teal-600 text-white' : 'text-gray-500'}`}>ID</button>
+                    </div>
+
+                    <button onClick={() => { scrollToSection("solution"), setMenuOpen(false) }} className="px-20 py-2 rounded-md hover:bg-gray-100 transition">Solution</button>
+                    <button onClick={() => { scrollToSection("people"), setMenuOpen(false) }} className="px-20 py-2 rounded-md hover:bg-gray-100 transition">People</button>
+                    <button onClick={() => { scrollToSection("about"), setMenuOpen(false) }} className="px-20 py-2 rounded-md hover:bg-gray-100 transition">About</button>
                     <Link to="/form" className="inline-flex justify-center items-center bg-teal-600 mt-6 py-3 px-7 rounded-lg text-white text-xl font-semibold shadow-lg w-full md:w-auto hover:bg-teal-800 transition">Assess Now</Link>
                 </div>
             </div>
@@ -150,14 +201,14 @@ function Home() {
                         </div>
                     </div>
                     <div className="flex-1 text-center md:text-left w-full order-2 md:order-1">
-                        <h1 className="font-semibold text-4xl md:text-5xl leading-tight">{landingData.title || "Write a Title..."}</h1>
-                        <p className="mt-6 max-w-2xl text-xl leading-relaxed text-gray-500">{landingData.description || "Write a Description..."}</p>
-                        
+                        <h1 className="font-semibold text-4xl md:text-5xl leading-tight">{t(landingData.title_en, landingData.title_id) || "Write a Title..."}</h1>
+                        <p className="mt-6 max-w-2xl text-xl leading-relaxed text-gray-500">{t(landingData.description_en, landingData.description_id) || "Write a Description..."}</p>
+
                         <div className="grid grid-cols-4 gap-6 mt-6">
-                            {landingData.components.map((item: any) => (
-                                <div key={item.id} className="flex items-center gap-3 bg-white px-4 py-2 border rounded-full">
+                            {landingData.components.map((item: any, idx: number) => (
+                                <div key={item.id || idx} className="flex items-center gap-3 bg-white px-4 py-2 border rounded-full">
                                     {item.image && (<img src={item.image} className="w-6 h-6" />)}
-                                    <span className="text-base font-normal">{item.label}</span>
+                                    <span className="text-base font-normal">{t(item.label_en, item.label_id)}</span>
                                 </div>
                             ))}
                         </div>
@@ -184,8 +235,8 @@ function Home() {
                                         <img src={item.image} className="w-10 h-10" />
                                     </div>
                                 )}
-                                <h3 className="text-xl font-semibold mb-4">{item.title}</h3>
-                                <p className="text-gray-500 leading-relaxed">{item.description}</p>
+                                <h3 className="text-xl font-semibold mb-4">{t(item.title_en, item.title_id)}</h3>
+                                <p className="text-gray-500 leading-relaxed">{t(item.description_en, item.description_id)}</p>
                             </div>
                         ))}
                     </div>
@@ -208,7 +259,7 @@ function Home() {
                                     </div>
                                 )}
                                 <h3 className="text-xl font-semibold mb-2">{person.name}</h3>
-                                <p className="text-gray-500">{person.position}</p>
+                                <p className="text-gray-500">{t(person.position_en, person.position_id)}</p>
                             </div>
                         ))}
                     </div>
@@ -221,7 +272,7 @@ function Home() {
                     <div className="text-center mb-14">
                         <h2 className="text-3xl md:text-4xl font-semibold">About TMS CSR</h2>
                         <p className="mt-4 text-gray-500 max-w-2xl mx-auto whitespace-pre-line">
-                            {landingData.about || "Write something about your company in the dashboard."}
+                            {t(landingData.about_en, landingData.about_id) || "Write something about your company in the dashboard."}
                         </p>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
@@ -247,10 +298,9 @@ function Home() {
 
             {/* --- PREFOOTER SECTION --- */}
             <div className="my-24 px-6 md:px-12 lg:px-24">
-                <div 
+                <div
                     className="relative rounded-3xl p-12 md:p-20 text-center overflow-hidden flex flex-col items-center justify-center shadow-xl"
                     style={{
-                        // Jika ada gambar, pakai gambar. Jika tidak, pakai warna solid Teal
                         backgroundColor: landingData.prefooter.backgroundImage ? "transparent" : "#0d9488",
                         backgroundImage: landingData.prefooter.backgroundImage ? `url('${landingData.prefooter.backgroundImage}')` : "none",
                         backgroundSize: "cover",
@@ -262,20 +312,17 @@ function Home() {
                     )}
 
                     <div className="relative z-10 max-w-3xl text-white">
-                        {/* Title 1 & 2 */}
                         <h2 className="text-3xl md:text-5xl font-bold leading-tight mb-4">
-                            {landingData.prefooter.title1} <br />
-                            <span className="text-teal-200">{landingData.prefooter.title2}</span>
+                            {t(landingData.prefooter.title1_en, landingData.prefooter.title1_id)} <br />
+                            <span className="text-teal-200">{t(landingData.prefooter.title2_en, landingData.prefooter.title2_id)}</span>
                         </h2>
 
-                        {/* Description */}
                         <p className="text-lg md:text-xl text-gray-200 mb-10 whitespace-pre-line">
-                            {landingData.prefooter.description}
+                            {t(landingData.prefooter.description_en, landingData.prefooter.description_id)}
                         </p>
 
-                        {/* Button Link */}
-                        <a 
-                            href={landingData.prefooter.buttonLink || "/form"} 
+                        <a
+                            href={landingData.prefooter.buttonLink || "/form"}
                             className="inline-block bg-white text-teal-700 font-bold text-lg py-4 px-10 rounded-full shadow-lg hover:bg-gray-100 hover:scale-105 transition-all duration-300"
                         >
                             Get Started Now
@@ -284,7 +331,7 @@ function Home() {
                 </div>
             </div>
 
-           {/* --- FOOTER --- */}
+            {/* --- FOOTER --- */}
             <footer>
                 <div className="bg-gray-100 border-t-2 px-6 md:px-12 lg:px-24 py-10 flex flex-col md:flex-row gap-10">
                     <div className="flex-1">
@@ -310,22 +357,20 @@ function Home() {
                     <div className="flex-1">
                         <div className="font-bold text-lg mb-3">Follow Us</div>
                         <div className="flex flex-wrap gap-3">
-                            {/* 🔴 PERBAIKAN: Looping array social dinamis */}
                             {landingData.social && Array.isArray(landingData.social) && landingData.social.map((item: any, index: number) => {
-                                // Jangan tampilkan jika URL kosong
-                                if (!item.url || item.url.trim() === "") return null;
-
-                                const platform = item.platform.toLowerCase().trim();
+                                // 🔴 PERBAIKAN 4: Cek apakah item url ada dan berupa string
+                                if (!item?.url || typeof item.url !== 'string' || item.url.trim() === "") return null;
+                                // Sabuk pengaman untuk property platform agar tidak error "toLowerCase of undefined"
+                                const platform = item?.platform?.toLowerCase()?.trim() || "";
 
                                 return (
-                                    <a 
-                                        key={index} 
-                                        href={item.url} 
-                                        target="_blank" 
-                                        rel="noopener noreferrer" 
+                                    <a
+                                        key={index}
+                                        href={item.url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
                                         className="bg-white p-2 rounded-lg text-gray-600 w-12 mx-2 hover:bg-teal-600 hover:text-white transition duration-300 flex items-center justify-center"
                                     >
-                                        {/* Render Icon berdasarkan input platform di CMS */}
                                         {platform === 'linkedin' && (
                                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-full h-full">
                                                 <path d="M18.44,3.06H5.56a2.507,2.507,0,0,0-2.5,2.5V18.44a2.507,2.507,0,0,0,2.5,2.5H18.44a2.5,2.5,0,0,0,2.5-2.5V5.56A2.5,2.5,0,0,0,18.44,3.06Zm1.5,15.38a1.511,1.511,0,0,1-1.5,1.5H5.56a1.511,1.511,0,0,1-1.5-1.5V5.56a1.511,1.511,0,0,1,1.5-1.5H18.44a1.511,1.511,0,0,1,1.5,1.5Z" />

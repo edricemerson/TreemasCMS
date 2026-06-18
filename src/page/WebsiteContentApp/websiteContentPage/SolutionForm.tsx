@@ -15,10 +15,11 @@ const SolutionForm = forwardRef((_, ref) => {
                 ...contextData.solutions,
                 {
                     id: crypto.randomUUID(),
-                    title: "",
+                    title_en: "",
+                    title_id: "",
                     icon: "",
-                    description: "",
-                    // image dihapus dari sini
+                    description_en: "",
+                    description_id: "",
                 },
             ],
         })
@@ -40,20 +41,30 @@ const SolutionForm = forwardRef((_, ref) => {
         }
 
         contextData.solutions.forEach((solution, index) => {
-            const title = (solution.title || "").trim();
-            const desc = (solution.description || "").trim();
+            const titleEn = (solution.title_en || "").trim();
+            const titleId = (solution.title_id || "").trim();
+            const descEn = (solution.description_en || "").trim();
+            const descId = (solution.description_id || "").trim();
 
-            // Validasi image dihapus
-
-            if (!title) {
-                const key = `solutionTitle-${index}`
-                newErrors[key] = "Solution title is required"
+            if (!titleEn) {
+                const key = `solutionTitleEn-${index}`
+                newErrors[key] = "EN Solution title is required"
+                setFirst(key)
+            }
+            if (!titleId) {
+                const key = `solutionTitleId-${index}`
+                newErrors[key] = "ID Solution title is required"
                 setFirst(key)
             }
 
-            if (!desc) {
-                const key = `solutionDescription-${index}`
-                newErrors[key] = "Solution description is required"
+            if (!descEn) {
+                const key = `solutionDescEn-${index}`
+                newErrors[key] = "EN Solution description is required"
+                setFirst(key)
+            }
+            if (!descId) {
+                const key = `solutionDescId-${index}`
+                newErrors[key] = "ID Solution description is required"
                 setFirst(key)
             }
         })
@@ -112,44 +123,70 @@ const SolutionForm = forwardRef((_, ref) => {
                             </Button>
                         </div>
 
-                        <div data-error={`solutionTitle-${index}`}>
-                            <label className="font-semibold block mb-2 text-sm text-gray-700">
-                                Title
-                            </label>
+                        {/* BILINGUAL: TITLE */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div data-error={`solutionTitleEn-${index}`}>
+                                <label className="font-semibold block mb-2 text-sm text-gray-700">
+                                    Title (EN) 🇬🇧
+                                </label>
+                                <input
+                                    type="text"
+                                    value={solution.title_en}
+                                    onChange={(e) => {
+                                        const value = e.target.value
+                                        const updated = [...contextData.solutions]
+                                        updated[index].title_en = value
+                                        setContextData({ ...contextData, solutions: updated })
 
-                            <input
-                                type="text"
-                                value={solution.title}
-                                onChange={(e) => {
-                                    const value = e.target.value
-                                    const updated = [...contextData.solutions]
-                                    updated[index].title = value
-                                    setContextData({ ...contextData, solutions: updated })
+                                        if (value.trim()) {
+                                            setErrors(prev => {
+                                                const key = `solutionTitleEn-${index}`
+                                                if (!prev[key]) return prev
+                                                const updatedErr = { ...prev }
+                                                delete updatedErr[key]
+                                                return updatedErr
+                                            })
+                                        }
+                                    }}
+                                    className={`w-full bg-white border rounded-xl px-4 py-2.5 text-sm
+                                    ${errors[`solutionTitleEn-${index}`] ? "border-red-500 focus:ring-red-500" : "border-gray-300 focus:ring-teal-500"}
+                                    focus:outline-none focus:ring-2`}
+                                />
+                                {errors[`solutionTitleEn-${index}`] && <p className="text-red-500 text-xs mt-1">{errors[`solutionTitleEn-${index}`]}</p>}
+                            </div>
 
-                                    if (value.trim()) {
-                                        setErrors(prev => {
-                                            const key = `solutionTitle-${index}`
-                                            if (!prev[key]) return prev
-                                            const updatedErr = { ...prev }
-                                            delete updatedErr[key]
-                                            return updatedErr
-                                        })
-                                    }
-                                }}
-                                className={`w-full bg-white border rounded-xl px-4 py-2.5 text-sm
-                                ${errors[`solutionTitle-${index}`]
-                                        ? "border-red-500 focus:ring-red-500"
-                                        : "border-gray-300 focus:ring-teal-500"}
-                                focus:outline-none focus:ring-2`}
-                            />
+                            <div data-error={`solutionTitleId-${index}`}>
+                                <label className="font-semibold block mb-2 text-sm text-gray-700">
+                                    Title (ID) 🇮🇩
+                                </label>
+                                <input
+                                    type="text"
+                                    value={solution.title_id}
+                                    onChange={(e) => {
+                                        const value = e.target.value
+                                        const updated = [...contextData.solutions]
+                                        updated[index].title_id = value
+                                        setContextData({ ...contextData, solutions: updated })
 
-                            {errors[`solutionTitle-${index}`] && (
-                                <p className="text-red-500 text-xs mt-1">
-                                    {errors[`solutionTitle-${index}`]}
-                                </p>
-                            )}
+                                        if (value.trim()) {
+                                            setErrors(prev => {
+                                                const key = `solutionTitleId-${index}`
+                                                if (!prev[key]) return prev
+                                                const updatedErr = { ...prev }
+                                                delete updatedErr[key]
+                                                return updatedErr
+                                            })
+                                        }
+                                    }}
+                                    className={`w-full bg-white border rounded-xl px-4 py-2.5 text-sm
+                                    ${errors[`solutionTitleId-${index}`] ? "border-red-500 focus:ring-red-500" : "border-gray-300 focus:ring-teal-500"}
+                                    focus:outline-none focus:ring-2`}
+                                />
+                                {errors[`solutionTitleId-${index}`] && <p className="text-red-500 text-xs mt-1">{errors[`solutionTitleId-${index}`]}</p>}
+                            </div>
                         </div>
 
+                        {/* ICON */}
                         <div data-error={`solutionIcon-${index}`}>
                             <label className="font-semibold block mb-2 text-sm text-gray-700">
                                 Icon Name
@@ -168,42 +205,67 @@ const SolutionForm = forwardRef((_, ref) => {
                             />
                         </div>
 
-                        <div data-error={`solutionDescription-${index}`}>
-                            <label className="font-semibold block mb-2 text-sm text-gray-700">
-                                Description
-                            </label>
+                        {/* BILINGUAL: DESCRIPTION */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div data-error={`solutionDescEn-${index}`}>
+                                <label className="font-semibold block mb-2 text-sm text-gray-700">
+                                    Description (EN) 🇬🇧
+                                </label>
+                                <textarea
+                                    rows={3}
+                                    value={solution.description_en}
+                                    onChange={(e) => {
+                                        const value = e.target.value
+                                        const updated = [...contextData.solutions]
+                                        updated[index].description_en = value
+                                        setContextData({ ...contextData, solutions: updated })
 
-                            <textarea
-                                rows={3}
-                                value={solution.description}
-                                onChange={(e) => {
-                                    const value = e.target.value
-                                    const updated = [...contextData.solutions]
-                                    updated[index].description = value
-                                    setContextData({ ...contextData, solutions: updated })
+                                        if (value.trim()) {
+                                            setErrors(prev => {
+                                                const key = `solutionDescEn-${index}`
+                                                if (!prev[key]) return prev
+                                                const updatedErr = { ...prev }
+                                                delete updatedErr[key]
+                                                return updatedErr
+                                            })
+                                        }
+                                    }}
+                                    className={`w-full bg-white border rounded-xl px-4 py-3 text-sm resize-none
+                                    ${errors[`solutionDescEn-${index}`] ? "border-red-500 focus:ring-red-500" : "border-gray-300 focus:ring-teal-500"}
+                                    focus:outline-none focus:ring-2`}
+                                />
+                                {errors[`solutionDescEn-${index}`] && <p className="text-red-500 text-xs mt-1">{errors[`solutionDescEn-${index}`]}</p>}
+                            </div>
 
-                                    if (value.trim()) {
-                                        setErrors(prev => {
-                                            const key = `solutionDescription-${index}`
-                                            if (!prev[key]) return prev
-                                            const updatedErr = { ...prev }
-                                            delete updatedErr[key]
-                                            return updatedErr
-                                        })
-                                    }
-                                }}
-                                className={`w-full bg-white border rounded-xl px-4 py-3 text-sm resize-none
-                                ${errors[`solutionDescription-${index}`]
-                                        ? "border-red-500 focus:ring-red-500"
-                                        : "border-gray-300 focus:ring-teal-500"}
-                                focus:outline-none focus:ring-2`}
-                            />
+                            <div data-error={`solutionDescId-${index}`}>
+                                <label className="font-semibold block mb-2 text-sm text-gray-700">
+                                    Description (ID) 🇮🇩
+                                </label>
+                                <textarea
+                                    rows={3}
+                                    value={solution.description_id}
+                                    onChange={(e) => {
+                                        const value = e.target.value
+                                        const updated = [...contextData.solutions]
+                                        updated[index].description_id = value
+                                        setContextData({ ...contextData, solutions: updated })
 
-                            {errors[`solutionDescription-${index}`] && (
-                                <p className="text-red-500 text-xs mt-1">
-                                    {errors[`solutionDescription-${index}`]}
-                                </p>
-                            )}
+                                        if (value.trim()) {
+                                            setErrors(prev => {
+                                                const key = `solutionDescId-${index}`
+                                                if (!prev[key]) return prev
+                                                const updatedErr = { ...prev }
+                                                delete updatedErr[key]
+                                                return updatedErr
+                                            })
+                                        }
+                                    }}
+                                    className={`w-full bg-white border rounded-xl px-4 py-3 text-sm resize-none
+                                    ${errors[`solutionDescId-${index}`] ? "border-red-500 focus:ring-red-500" : "border-gray-300 focus:ring-teal-500"}
+                                    focus:outline-none focus:ring-2`}
+                                />
+                                {errors[`solutionDescId-${index}`] && <p className="text-red-500 text-xs mt-1">{errors[`solutionDescId-${index}`]}</p>}
+                            </div>
                         </div>
 
                     </div>

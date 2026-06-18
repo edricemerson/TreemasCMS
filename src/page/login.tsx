@@ -50,7 +50,7 @@ function Login() {
         } catch (err: any) {
             setError(err.message || "Login failed");
         }
-        window.location.href = ("/menu/dashboard");
+       // window.location.href = ("/menu/dashboard");
     }
 
     return (

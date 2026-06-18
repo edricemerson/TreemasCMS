@@ -62,12 +62,16 @@ function WebsiteContent() {
                     "Authorization": `Bearer ${localStorage.getItem("token")}`
                 };
 
+                // 🔴 PERUBAHAN 1: PAYLOAD TEAM
                 const teamPayload = {
                     team: contextData.people.map((person, i) => ({
                         name: person.name || "",
-                        position: person.position || "",    
+                        // Backend meminta parameter position_en dan position_id
+                        position_en: person.title_en || "",    
+                        position_id: person.title_id || "", 
                         labelName: person.labelName || "",  
-                        description: person.description || "", 
+                        description_en: person.description_en || "", 
+                        description_id: person.description_id || "", 
                         image_base64: person.image || "",
                         display_order: i + 1
                     }))
@@ -80,10 +84,13 @@ function WebsiteContent() {
                 });
                 if (resTeam.status === 401) return handleSessionExpired();
 
+                // 🔴 PERUBAHAN 2: PAYLOAD SOLUTIONS
                 const solPayload = {
                     solutions: contextData.solutions.map((sol, i) => ({
-                        title: sol.title || "",
-                        description: sol.description || "",
+                        title_en: sol.title_en || "",
+                        title_id: sol.title_id || "",
+                        description_en: sol.description_en || "",
+                        description_id: sol.description_id || "",
                         display_order: i + 1,
                         icon: sol.icon || ""
                     }))
@@ -96,31 +103,44 @@ function WebsiteContent() {
                 });
                 if (resSol.status === 401) return handleSessionExpired();
 
+                // 🔴 PERUBAHAN 3: PAYLOAD SETTINGS
                 const settingsPayload = {
                     updates: {
-                        hero_title: contextData.title,
-                        hero_desc: contextData.description,
+                        // Hero
+                        hero_title_en: contextData.title_en,
+                        hero_title_id: contextData.title_id,
+                        hero_desc_en: contextData.description_en,
+                        hero_desc_id: contextData.description_id,
                         hero_bg_image: contextData.backgroundImage,
                         hero_components: JSON.stringify(contextData.components),
                         
-                        preFooter_title1: contextData.prefooter.title1,
-                        preFooter_title2: contextData.prefooter.title2,
-                        preFooter_desc: contextData.prefooter.description,
+                        // Prefooter
+                        preFooter_title1_en: contextData.prefooter.title1_en,
+                        preFooter_title1_id: contextData.prefooter.title1_id,
+                        preFooter_title2_en: contextData.prefooter.title2_en,
+                        preFooter_title2_id: contextData.prefooter.title2_id,
+                        preFooter_desc_en: contextData.prefooter.description_en,
+                        preFooter_desc_id: contextData.prefooter.description_id,
                         preFooter_bg: contextData.prefooter.backgroundImage,
                         preFooter_btn_link: contextData.prefooter.buttonLink,
                        
-                        about_content: contextData.about,
+                        // About
+                        about_content_en: contextData.about_en,
+                        about_content_id: contextData.about_id,
 
+                        // Statistic
                         statistic_businesses: contextData.statistic.businesses,
                         statistic_provinces: contextData.statistic.provinces,
                         statistic_areas: contextData.statistic.areas,
                         statistic_satisfaction: contextData.statistic.satisfaction,
 
+                        // Contact
                         contact_email: contextData.contact.email,
                         contact_phone: contextData.contact.phone,
                         contact_address: contextData.contact.address,
 
-                        social_links: contextData.social
+                        // Social
+                        social_links: JSON.stringify(contextData.social)
                     }
                 };
 
@@ -138,7 +158,7 @@ function WebsiteContent() {
                 console.error("failed publishing to db", error);
                 alert("Failed saving data to server. Check console.");
             }
-        }else {
+        } else {
             alert('failed to publish, form filled incorrectly');
         }
     }

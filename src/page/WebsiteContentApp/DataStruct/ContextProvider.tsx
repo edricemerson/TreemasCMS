@@ -1,153 +1,138 @@
-import { useState, useEffect } from "react" 
-import { Context } from "./Context"
-import type { AllDataType } from "./ContextType"
-import { useLocation } from "react-router-dom"
+import React, { createContext, useContext, useState, useEffect } from "react";
+import type { AllDataType } from "./ContextType"; // Sesuaikan path jika berbeda
 
-export const parseLocalized = (val: any): { en: string; id: string } => {
-    if (typeof val === 'object' && val !== null) return { en: val.en || "", id: val.id || "" };
-    try {
-        const parsed = JSON.parse(val);
-        if (parsed.en !== undefined || parsed.id !== undefined) return parsed;
-        return { en: val || "", id: "" }; 
-    } catch {
-        return { en: val || "", id: "" }; 
-    }
+// 1. Inisialisasi State Kosong (Sudah rata/flat)
+const defaultData: AllDataType = {
+    title_en: "",
+    title_id: "",
+    description_en: "",
+    description_id: "",
+    backgroundImage: "",
+    components: [],
+    solutions: [],
+    people: [],
+    about_en: "",
+    about_id: "",
+    statistic: { businesses: 0, provinces: 0, areas: 0, satisfaction: 0 },
+    contact: { email: "", phone: "", address: "" },
+    prefooter: { 
+        title1_en: "", title1_id: "", 
+        title2_en: "", title2_id: "", 
+        description_en: "", description_id: "", 
+        backgroundImage: "", buttonLink: "" 
+    },
+    social: []
 };
-export const ContextProvider = ({ children }: { children: React.ReactNode }) => {
-    const location = useLocation();
-    
-   
-    const [contextData, setContextData] = useState<AllDataType>({
-        title: "",
-        description: "",
-        backgroundImage: "",
-        components: [
-            { id: "comp1", label: "", icon: "" },
-            { id: "comp2", label: "", icon: "" },
-            { id: "comp3", label: "", icon: "" },
-            { id: "comp4", label: "", icon: "" },
-        ],
-        solutions: [],
-        people: [],
-        about: "",
-        statistic: {
-            businesses: 0,
-            provinces: 0,
-            areas: 0,
-            satisfaction: 0,
-        },
-        contact: {
-            email: "",
-            phone: "",
-            address: "",
-        },
-        prefooter: {
-            title1: "",
-            title2: "",
-            description: "",
-            backgroundImage: "",
-            buttonLink: "",
-        },
-        social: [], // Sudah jadi array dinamis
-    })
+
+type ContextProps = {
+    contextData: AllDataType;
+    setContextData: React.Dispatch<React.SetStateAction<AllDataType>>;
+    refreshData: () => Promise<void>;
+};
+
+const DataContext = createContext<ContextProps | undefined>(undefined);
+
+export const ContextProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+    const [contextData, setContextData] = useState<AllDataType>(defaultData);
+
+    const refreshData = async () => {
+        try {
+            // Sesuaikan URL endpoint ini dengan routing backend kamu
+            const response = await fetch("http://localhost:5000/api/cms/landing");
+            const result = await response.json();
+
+            if (result.success) {
+                const dbSettings = result.data.settings || {};
+                const dbSolutions = result.data.solutions || [];
+                const dbTeam = result.data.team || [];
+
+                // 2. Mapping Langsung Lurus dari Database ke State
+                setContextData({
+                    // HERO SETTINGS
+                    title_en: dbSettings.hero_title_en || "",
+                    title_id: dbSettings.hero_title_id || "",
+                    description_en: dbSettings.hero_desc_en || "",
+                    description_id: dbSettings.hero_desc_id || "",
+                    backgroundImage: dbSettings.hero_bg_image || "",
+                    components: typeof dbSettings.hero_components === "string" 
+                        ? JSON.parse(dbSettings.hero_components) 
+                        : (dbSettings.hero_components || []),
+
+                    // ABOUT SETTINGS
+                    about_en: dbSettings.about_content_en || "",
+                    about_id: dbSettings.about_content_id || "",
+
+                    // PREFOOTER SETTINGS
+                    prefooter: {
+                        title1_en: dbSettings.preFooter_title1_en || "",
+                        title1_id: dbSettings.preFooter_title1_id || "",
+                        title2_en: dbSettings.preFooter_title2_en || "",
+                        title2_id: dbSettings.preFooter_title2_id || "",
+                        description_en: dbSettings.preFooter_desc_en || "",
+                        description_id: dbSettings.preFooter_desc_id || "",
+                        backgroundImage: dbSettings.preFooter_bg || "",
+                        buttonLink: dbSettings.preFooter_btn_link || ""
+                    },
+
+                    // SOLUTIONS TABLE
+                    solutions: dbSolutions.map((sol: any) => ({
+                        id: sol.id,
+                        title_en: sol.title_en || "",
+                        title_id: sol.title_id || "",
+                        description_en: sol.description_en || "",
+                        description_id: sol.description_id || "",
+                        icon: sol.icon || ""
+                    })),
+
+                    // TEAM TABLE (Sesuai ERD, jabatannya pakai 'title')
+                    people: dbTeam.map((p: any) => ({
+                        id: p.id,
+                        name: p.name || "",
+                        labelName: p.label || "", // DB pakai 'label'
+                        title_en: p.title_en || "",
+                        title_id: p.title_id || "",
+                        description_en: p.description_en || "",
+                        description_id: p.description_id || "",
+                        image: p.image_url || "" // DB pakai 'image_url', Context pakai 'image'
+                    })),
+
+                    // STATS, CONTACT, SOCIAL (Tetap sama)
+                    statistic: {
+                        businesses: Number(dbSettings.statistic_businesses) || 0,
+                        provinces: Number(dbSettings.statistic_provinces) || 0,
+                        areas: Number(dbSettings.statistic_areas) || 0,
+                        satisfaction: Number(dbSettings.statistic_satisfaction) || 0,
+                    },
+                    contact: {
+                        email: dbSettings.contact_email || "",
+                        phone: dbSettings.contact_phone || "",
+                        address: dbSettings.contact_address || "",
+                    },
+                    social: typeof dbSettings.social_links === "string" 
+                        ? JSON.parse(dbSettings.social_links) 
+                        : (dbSettings.social_links || [])
+                });
+            }
+        } catch (error) {
+            console.error("Gagal mengambil data CMS dari Database:", error);
+        }
+    };
 
     useEffect(() => {
-        const fetchUserData = async () => {
-            const token = localStorage.getItem("token");
-            if (!token || location.pathname === "/home") return;
-
-            try {
-                const headers = { "Authorization" : `Bearer ${token}`};
-                const [settingsRes, solutionsRes, teamRes] = await Promise.all([
-                    fetch("http://localhost:3000/api/cms/settings", { headers }),
-                    fetch("http://localhost:3000/api/cms/solutions", { headers }),
-                    fetch("http://localhost:3000/api/cms/team", { headers })
-                ]); 
-
-                const settingsData = await settingsRes.json();
-                const solutionsData = await solutionsRes.json();
-                const teamData = await teamRes.json();
-                
-                if (settingsData.success) {
-                    const dbSettings = settingsData.data;
-                    
-                    const loadedSocial = Array.isArray(dbSettings.social_links)
-                        ? dbSettings.social_links
-                        : [
-                            { platform: "linkedin", url: dbSettings.social_linkedin || "", icon: "linkedin" },
-                            { platform: "instagram", url: dbSettings.social_instagram || "", icon: "instagram" },
-                            { platform: "x", url: dbSettings.social_x || "", icon: "x" }
-                          ].filter(item => item.url && item.url.trim() !== ""); 
-
-                    setContextData((prev) => ({
-                        ...prev,
-                        title: dbSettings.hero_title || prev.title,
-                        description: dbSettings.hero_desc || prev.description,
-                        backgroundImage: dbSettings.hero_bg_image || prev.backgroundImage,
-                        
-                        components: Array.isArray(dbSettings.hero_components) ? dbSettings.hero_components : prev.components,
-                        
-                        about: dbSettings.about_content || prev.about,
-                        prefooter: {
-                            title1: dbSettings.preFooter_title1 || prev.prefooter.title1,
-                            title2: dbSettings.preFooter_title2 || prev.prefooter.title2,
-                            description: dbSettings.preFooter_desc || prev.prefooter.description,
-                            backgroundImage: dbSettings.preFooter_bg || prev.prefooter.backgroundImage,
-                            buttonLink: dbSettings.preFooter_btn_link || prev.prefooter.buttonLink,
-                        },
-
-                        statistic: {
-                            ...prev.statistic,
-                            businesses: Number(dbSettings.statistic_businesses) || prev.statistic.businesses,
-                            provinces: Number(dbSettings.statistic_provinces) || prev.statistic.provinces,
-                            areas: Number(dbSettings.statistic_areas) || prev.statistic.areas,
-                            satisfaction: Number(dbSettings.statistic_satisfaction) || prev.statistic.satisfaction,
-                        },
-                        
-                        contact: {
-                            ...prev.contact,
-                            email: dbSettings.contact_email || prev.contact.email,
-                            phone: dbSettings.contact_phone || prev.contact.phone,
-                            address: dbSettings.contact_address || prev.contact.address,
-                        },
-                        
-                        
-                        social: loadedSocial, 
-
-                        solutions: solutionsData.success && solutionsData.data.length > 0
-                            ? solutionsData.data.map((s: any) => ({
-                                id: s.id.toString(),
-                                title: s.title,
-                                description: s.description,
-                                image: s.image_url,
-                                icon: s.icon || "" 
-                            }))
-                            : prev.solutions,
-
-                        people: teamData.success && teamData.data.length > 0
-                            ? teamData.data.map((t: any) => ({
-                                id: t.id.toString(),
-                                name: t.name,
-                                labelName: t.label || "",       
-                                position: t.title || "", 
-                                description: t.description || "", 
-                                image: t.image_url || ""
-                            }))
-                            : prev.people
-                            
-                    }));
-                }
-            } catch (error) {
-                console.error("Gagal menarik data user:", error);
-            }
-        };
-
-        fetchUserData();
-    }, [location.pathname]);
+        refreshData();
+    }, []);
 
     return (
-        <Context.Provider value={{ contextData, setContextData }}>
+        <DataContext.Provider value={{ contextData, setContextData, refreshData }}>
             {children}
-        </Context.Provider>
-    )
-}
+        </DataContext.Provider>
+    );
+};
+
+export const useData = () => {
+    const context = useContext(DataContext);
+    if (!context) {
+        throw new Error("useData must be used within a ContextProvider");
+    }
+    return context;
+};
