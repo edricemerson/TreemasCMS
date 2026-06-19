@@ -81,7 +81,7 @@ useEffect(() => {
                             id: o.id, 
                             text: o.label, 
                             score: parseFloat(o.points) || 0,
-                            type: o.type || "" // 🔴 PERBAIKAN: Menjaga status type agar tidak hilang saat sync
+                            type: o.type || "" 
                         })) || []
                     })) || [];
                 });
@@ -172,7 +172,6 @@ const handleUpdateQuestion = async (categoryKey: string, questionIndex: number, 
             } else {
                 await fetch(`http://localhost:3000/api/assessment/options`, {
                     method: "POST", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
-                    // 🔴 PERUBAHAN DISINI: Tambahkan option_type
                     body: JSON.stringify({ question_id: questionId, option_text: ans.text, points: ans.score, sequence: i + 1, option_type: ans.type || "" })
                 });
             }
