@@ -14,9 +14,9 @@ function CompanySize (){
     const [formDescription, setFormDescription] = useState("");
     const [editingId, setEditingId] = useState<number | null>(null);
 
-    const fetchIndustryTypes = async () => {
+   const fetchCompanySizes = async () => {
         try {
-            const response = await fetch("http://localhost:3000/api/master-data/industries");
+            const response = await fetch("http://localhost:3000/api/master-data/company-size");
             const result = await response.json();
             if (result.success) {
                 setCompanySizes(result.data);
@@ -27,8 +27,9 @@ function CompanySize (){
     };
 
     useEffect(() => {
-        fetchIndustryTypes();
+        fetchCompanySizes();
     }, []);
+
 
     const handleEdit = (item: any) => {
         setEditingId(item.id);
@@ -40,8 +41,8 @@ function CompanySize (){
         setTimeout(() => setAnimateModal(true), 10);
     };
 
-    const handleSave = async () => {
-            if(!formKode.trim() || !formName.trim()){
+   const handleSave = async () => {
+        if(!formKode.trim() || !formName.trim()){
             alert("Code and Name Must be Filled!");
             return;
         }
@@ -49,19 +50,19 @@ function CompanySize (){
 
         try {
             if (editingId) {
-                await fetch(`http://localhost:3000/api/master-data/industries/${editingId}`, {
+                await fetch(`http://localhost:3000/api/master-data/company-size/${editingId}`, {
                     method: "PUT",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(payload),
                 });
             } else {
-                await fetch("http://localhost:3000/api/master-data/industries", {
+                await fetch("http://localhost:3000/api/master-data/company-size", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(payload),
                 });
             }
-            fetchIndustryTypes();
+            fetchCompanySizes(); 
             closeModal();
         } catch (error) {
             console.error("Fail saving data: ", error);
@@ -73,16 +74,15 @@ function CompanySize (){
         setTimeout(() => setShowModal(false), 200);
     };
 
-    const handleDelete = async (id: number) => {
+   const handleDelete = async (id: number) => {
         if (!window.confirm("Are you sure you want to delete this company size?")) return;
         try {
-            await fetch(`http://localhost:3000/api/master-data/industries/${id}`, { method: "DELETE" });
-            fetchIndustryTypes();
+            await fetch(`http://localhost:3000/api/master-data/company-size/${id}`, { method: "DELETE" });
+            fetchCompanySizes();
         } catch (error) {
             console.error("Fail deleting data: ", error);
         }
     };
-
     return(
         <>
             <div className="bg-white mt-6 px-4 py-3 border rounded-2xl">

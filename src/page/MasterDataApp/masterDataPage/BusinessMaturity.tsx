@@ -15,9 +15,9 @@ function BusinessMaturity (){
     const [editingId, setEditingId] = useState<number | null>(null);
 
 
-    const fetchLegalEntities = async () => {
+    const fetchBusinessMaturities = async () => {
         try {
-            const response = await fetch("http://localhost:3000/api/master-data/legal_entities");
+            const response = await fetch("http://localhost:3000/api/master-data/business-maturity");
             const result = await response.json();
             if (result.success) {
                 setBusinessMaturities(result.data);
@@ -27,7 +27,7 @@ function BusinessMaturity (){
         }
     };
     useEffect(() => {
-        fetchLegalEntities();
+        fetchBusinessMaturities();
     }, []);
 
        const handleEdit = (entity: any) => {
@@ -54,21 +54,21 @@ function BusinessMaturity (){
         try {
             if (editingId) {
                 // UPDATE (PUT)
-                await fetch(`http://localhost:3000/api/master-data/legal_entities/${editingId}`, {
+                await fetch(`http://localhost:3000/api/master-data/business-maturity/${editingId}`, {
                     method: "PUT",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(payload),
                 });
             } else {
                 // ADD NEW (POST)
-                await fetch("http://localhost:3000/api/master-data/legal_entities", {
+                await fetch("http://localhost:3000/api/master-data/business-maturity", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(payload),
                 });
             }
 
-            fetchLegalEntities();
+            fetchBusinessMaturities();
             closeModal();
         } catch (error) {
             console.error("Fail saving data: ", error);
@@ -84,10 +84,10 @@ function BusinessMaturity (){
         if (!window.confirm("Are you sure you want to delete this business maturity?")) return;
 
         try {
-            await fetch(`http://localhost:3000/api/master-data/legal_entities/${id}`, {
+            await fetch(`http://localhost:3000/api/master-data/business-maturity/${id}`, {
                 method: "DELETE",
             });
-            fetchLegalEntities();
+            fetchBusinessMaturities();
         } catch (error) {
             console.error("Fail deleting data: ", error);
         }

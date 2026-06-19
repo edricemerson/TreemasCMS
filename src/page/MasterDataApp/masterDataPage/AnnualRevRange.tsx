@@ -16,7 +16,7 @@ function AnnualRevRange (){
 
     const fetchCompanySizes = async () => {
         try {
-            const response = await fetch("http://localhost:3000/api/master-data/company_sizes");
+            const response = await fetch("http://localhost:3000/api/master-data/annual-revenue");
             const result = await response.json();
             if (result.success) {
                 setAnnualRevRange(result.data);
@@ -40,7 +40,7 @@ function AnnualRevRange (){
         setTimeout(() => setAnimateModal(true), 10);
     };
 
-    const handleSave = async () => {
+   const handleSave = async () => {
             if(!formKode.trim() || !formName.trim()){
             alert("Code and Name Must be Filled!");
             return;
@@ -49,13 +49,13 @@ function AnnualRevRange (){
 
         try {
             if (editingId) {
-                await fetch(`http://localhost:3000/api/master-data/company_sizes/${editingId}`, {
+                await fetch(`http://localhost:3000/api/master-data/annual-revenue/${editingId}`, {
                     method: "PUT",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(payload),
                 });
             } else {
-                await fetch("http://localhost:3000/api/master-data/company_sizes", {
+                await fetch("http://localhost:3000/api/master-data/annual-revenue", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(payload),
@@ -67,16 +67,15 @@ function AnnualRevRange (){
             console.error("Fail saving data: ", error);
         }
     };
-
     const closeModal = () => {
         setAnimateModal(false);
         setTimeout(() => setShowModal(false), 200);
     };
 
-    const handleDelete = async (id: number) => {
+  const handleDelete = async (id: number) => {
         if (!window.confirm("Are you sure you want to delete this Annual Revenue Range?")) return;
         try {
-            await fetch(`http://localhost:3000/api/master-data/company_sizes/${id}`, { method: "DELETE" });
+            await fetch(`http://localhost:3000/api/master-data/annual-revenue/${id}`, { method: "DELETE" });
             fetchCompanySizes();
         } catch (error) {
             console.error("Fail deleting data: ", error);

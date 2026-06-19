@@ -14,9 +14,10 @@ function BusinessType (){
     const [formDescription, setFormDescription] = useState("");
     const [editingId, setEditingId] = useState<number | null>(null);
 
-    const fetchBusinessSectors = async () => {
+ 
+    const fetchBusinessTypes = async () => {
         try {
-            const response = await fetch("http://localhost:3000/api/master-data/business_sectors");
+            const response = await fetch("http://localhost:3000/api/master-data/business-type");
             const result = await response.json();
             if (result.success) {
                 setBusinessType(result.data);
@@ -27,7 +28,7 @@ function BusinessType (){
     };
 
     useEffect(() => {
-        fetchBusinessSectors();
+        fetchBusinessTypes(); 
     }, []);
 
     const handleEdit = (sector: any) => {
@@ -39,8 +40,8 @@ function BusinessType (){
         setShowModal(true);
         setTimeout(() => setAnimateModal(true), 10);
     };
-    const handleSave = async () => {
-            if(!formKode.trim() || !formName.trim()){
+  const handleSave = async () => {
+        if(!formKode.trim() || !formName.trim()){
             alert("Code and Name Must be Filled!");
             return;
         }
@@ -52,20 +53,22 @@ function BusinessType (){
 
         try {
             if (editingId) {
-                await fetch(`http://localhost:3000/api/master-data/business_sectors/${editingId}`, {
+               
+                await fetch(`http://localhost:3000/api/master-data/business-type/${editingId}`, {
                     method: "PUT",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(payload),
                 });
             } else {
-                await fetch("http://localhost:3000/api/master-data/business_sectors", {
+               
+                await fetch("http://localhost:3000/api/master-data/business-type", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(payload),
                 });
             }
 
-            fetchBusinessSectors(); 
+            fetchBusinessTypes(); 
             closeModal();
         } catch (error) {
             console.error("Fail saving data: ", error);
@@ -77,14 +80,15 @@ function BusinessType (){
         setTimeout(() => setShowModal(false), 200);
     };
 
-    const handleDelete = async (id: number) => {
+ const handleDelete = async (id: number) => {
         if (!window.confirm("Are you sure you want to delete this business type?")) return;
 
         try {
-            await fetch(`http://localhost:3000/api/master-data/business_sectors/${id}`, {
+            
+            await fetch(`http://localhost:3000/api/master-data/business-type/${id}`, {
                 method: "DELETE",
             });
-            fetchBusinessSectors();
+            fetchBusinessTypes(); 
         } catch (error) {
             console.error("Fail deleting data: ", error);
         }
