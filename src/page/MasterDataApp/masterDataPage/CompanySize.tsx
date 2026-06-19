@@ -14,9 +14,9 @@ function CompanySize (){
     const [formDescription, setFormDescription] = useState("");
     const [editingId, setEditingId] = useState<number | null>(null);
 
-    const fetchCompanySizes = async () => {
+    const fetchIndustryTypes = async () => {
         try {
-            const response = await fetch("http://localhost:3000/api/master-data/company_sizes");
+            const response = await fetch("http://localhost:3000/api/master-data/industries");
             const result = await response.json();
             if (result.success) {
                 setCompanySizes(result.data);
@@ -27,7 +27,7 @@ function CompanySize (){
     };
 
     useEffect(() => {
-        fetchCompanySizes();
+        fetchIndustryTypes();
     }, []);
 
     const handleEdit = (item: any) => {
@@ -49,19 +49,19 @@ function CompanySize (){
 
         try {
             if (editingId) {
-                await fetch(`http://localhost:3000/api/master-data/company_sizes/${editingId}`, {
+                await fetch(`http://localhost:3000/api/master-data/industries/${editingId}`, {
                     method: "PUT",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(payload),
                 });
             } else {
-                await fetch("http://localhost:3000/api/master-data/company_sizes", {
+                await fetch("http://localhost:3000/api/master-data/industries", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(payload),
                 });
             }
-            fetchCompanySizes();
+            fetchIndustryTypes();
             closeModal();
         } catch (error) {
             console.error("Fail saving data: ", error);
@@ -76,8 +76,8 @@ function CompanySize (){
     const handleDelete = async (id: number) => {
         if (!window.confirm("Are you sure you want to delete this company size?")) return;
         try {
-            await fetch(`http://localhost:3000/api/master-data/company_sizes/${id}`, { method: "DELETE" });
-            fetchCompanySizes();
+            await fetch(`http://localhost:3000/api/master-data/industries/${id}`, { method: "DELETE" });
+            fetchIndustryTypes();
         } catch (error) {
             console.error("Fail deleting data: ", error);
         }

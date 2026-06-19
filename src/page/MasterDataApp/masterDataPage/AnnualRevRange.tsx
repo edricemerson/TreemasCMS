@@ -2,8 +2,8 @@ import Button from "../../Button";
 import Searchbar from "../component/Searchbar";
 import { useState, useEffect } from "react";
 
-function MarketScope (){
-    const [marketScopes, setMarketScopes] = useState<any[]>([]);
+function AnnualRevRange (){
+    const [annualRevRange, setAnnualRevRange] = useState<any[]>([]);
     const [search, setSearch] = useState("");
 
     const [showModal, setShowModal] = useState(false);
@@ -14,12 +14,12 @@ function MarketScope (){
     const [formDescription, setFormDescription] = useState("");
     const [editingId, setEditingId] = useState<number | null>(null);
 
-    const fetchMarketScopes = async () => {
+    const fetchCompanySizes = async () => {
         try {
-            const response = await fetch("http://localhost:3000/api/master-data/market_scopes");
+            const response = await fetch("http://localhost:3000/api/master-data/company_sizes");
             const result = await response.json();
             if (result.success) {
-                setMarketScopes(result.data);
+                setAnnualRevRange(result.data);
             }
         } catch (error) {
             console.error("Gagal mengambil data:", error);
@@ -27,7 +27,7 @@ function MarketScope (){
     };
 
     useEffect(() => {
-        fetchMarketScopes();
+        fetchCompanySizes();
     }, []);
 
     const handleEdit = (item: any) => {
@@ -49,19 +49,19 @@ function MarketScope (){
 
         try {
             if (editingId) {
-                await fetch(`http://localhost:3000/api/master-data/market_scopes/${editingId}`, {
+                await fetch(`http://localhost:3000/api/master-data/company_sizes/${editingId}`, {
                     method: "PUT",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(payload),
                 });
             } else {
-                await fetch("http://localhost:3000/api/master-data/market_scopes", {
+                await fetch("http://localhost:3000/api/master-data/company_sizes", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(payload),
                 });
             }
-            fetchMarketScopes();
+            fetchCompanySizes();
             closeModal();
         } catch (error) {
             console.error("Fail saving data: ", error);
@@ -74,10 +74,10 @@ function MarketScope (){
     };
 
     const handleDelete = async (id: number) => {
-        if (!window.confirm("Are you sure you want to delete this market scope?")) return;
+        if (!window.confirm("Are you sure you want to delete this Annual Revenue Range?")) return;
         try {
-            await fetch(`http://localhost:3000/api/master-data/market_scopes/${id}`, { method: "DELETE" });
-            fetchMarketScopes();
+            await fetch(`http://localhost:3000/api/master-data/company_sizes/${id}`, { method: "DELETE" });
+            fetchCompanySizes();
         } catch (error) {
             console.error("Fail deleting data: ", error);
         }
@@ -87,7 +87,7 @@ function MarketScope (){
         <>
             <div className="bg-white mt-6 px-4 py-3 border rounded-2xl">
                 <div className="flex items-center justify-between">
-                    <p className="font-semibold text-xl">Market Scope</p>
+                    <p className="font-semibold text-xl">Annual Revenue Range</p>
                     <Button onClick={() => {setEditingId(null); setFormKode(""); setFormName(""); 
                     setFormDescription(""); setShowModal(true); setTimeout(() => setAnimateModal(true), 10);}}
                     className="flex items-center gap-2 bg-black text-white px-4 py-2 rounded-lg font-medium text-base hover:bg-gray-800 transition-all duration-200">
@@ -113,7 +113,7 @@ function MarketScope (){
                             </tr>
                         </thead>
                         <tbody className="divide-y text-gray-400">
-                            {marketScopes.filter((item) => item.name.toLowerCase().includes(search.toLowerCase())).map((item, index) => (
+                            {annualRevRange.filter((item) => item.name.toLowerCase().includes(search.toLowerCase())).map((item, index) => (
                                 <tr key={item.id} className="hover:bg-gray-100 transition-colors duration-300 ease-in-out">
                                     <td className="py-3 pl-5 font-semibold text-black">{index + 1}</td>
                                     <td className="py-3 text-black">{item.code || "-"}</td>
@@ -150,7 +150,7 @@ function MarketScope (){
             {showModal && (
                 <div className={`fixed inset-0 flex items-center z-50 transition-opacity duration-200 justify-center ${animateModal ? "bg-black/40 opacity-100" : "bg-black/0 opacity-0"}`}>
                     <div className={`bg-white rounded-2xl shadow-lg w-125 p-6 relative transform transition-all duration-200 ${animateModal ? "scale-100 opacity-100" : "scale-95 opacity-0"}`}>
-                        <h2 className="text-xl font-semibold mb-4">{editingId ? "Edit Market Scope" : "Add New Market Scope"}</h2>
+                        <h2 className="text-xl font-semibold mb-4">{editingId ? "Edit Annual Revenue Range" : "Add New Annual Revenue Range"}</h2>
                         <div className="flex flex-col gap-4">
                             <div>
                                 <label className="text-sm font-medium">Kode</label>
@@ -175,4 +175,4 @@ function MarketScope (){
         </>
     )
 } 
-export default MarketScope;
+export default AnnualRevRange;

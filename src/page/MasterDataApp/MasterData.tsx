@@ -1,13 +1,13 @@
 import { useState } from "react";
-import LegalEntity from "./masterDataPage/LegalEntity";
-import BusinessSector from "./masterDataPage/BusinessSector";
-import IndustryType from "./masterDataPage/IndustryType";
-import Province from "./masterDataPage/Province";
+import BusinessMaturity from "./masterDataPage/BusinessMaturity";
+import BusinessType from "./masterDataPage/BusinessType";
 import CompanySize from "./masterDataPage/CompanySize";
-import FinancialStatus from "./masterDataPage/FinancialStatus";
-import AnnualRevenue from "./masterDataPage/AnnualRevenue";
-import MarketScope from "./masterDataPage/MarketScope";
-import EstimatedMarket from "./masterDataPage/EstimatedMarket";
+import Province from "./masterDataPage/Province";
+import AnnualRevRange from "./masterDataPage/AnnualRevRange";
+// import FinancialStatus from "./masterDataPage/FinancialStatus";
+// import AnnualRevenue from "./masterDataPage/AnnualRevenue";
+// import MarketScope from "./masterDataPage/MarketScope";
+// import EstimatedMarket from "./masterDataPage/EstimatedMarket";
 import Button from "../Button";
 
 function MasterData() {
@@ -15,15 +15,15 @@ function MasterData() {
     const [NavButtonActive, setNavButtonActive] = useState<number>(1);
 
     const NavButton = [
-        { id: 1, label: "Legal Entity" },
-        { id: 2, label: "Business Sector" },
-        { id: 3, label: "Industry Type" },
+        { id: 1, label: "Business Maturity" },
+        { id: 2, label: "Business Type" },
+        { id: 3, label: "Company Size" },
         { id: 4, label: "Province" },
-        { id: 5, label: "Company Size" },
-        { id: 6, label: "Financial Status" },
-        { id: 7, label: "Annual Revenue Range" },
-        { id: 8, label: "Market Scope" },
-        { id: 9, label: "Est. Market Position" },
+        { id: 5, label: "Annual Revenue Range" },
+        // { id: 6, label: "Financial Status" },
+        // { id: 7, label: "Annual Revenue Range" },
+        // { id: 8, label: "Market Scope" },
+        // { id: 9, label: "Est. Market Position" },
     ];
 
     return (
@@ -51,15 +51,15 @@ function MasterData() {
             </div>
 
             {/* render section */}
-            {NavButtonActive === 1 && <LegalEntity />}
-            {NavButtonActive === 2 && <BusinessSector />}
-            {NavButtonActive === 3 && <IndustryType />}
+            {NavButtonActive === 1 && <BusinessMaturity />}
+            {NavButtonActive === 2 && <BusinessType />}
+            {NavButtonActive === 3 && <CompanySize />}
             {NavButtonActive === 4 && <Province />}
-            {NavButtonActive === 5 && <CompanySize />}
-            {NavButtonActive === 6 && <FinancialStatus />} {/* following figma */}
-            {NavButtonActive === 7 && <AnnualRevenue />} 
-            {NavButtonActive === 8 && <MarketScope />} 
-            {NavButtonActive === 9 && <EstimatedMarket />} {/* following figma */}
+            {NavButtonActive === 5 && <AnnualRevRange />}
+            {/* {NavButtonActive === 6 && <FinancialStatus />} following figma */}
+            {/* {NavButtonActive === 7 && <AnnualRevenue />}  */}
+            {/* {NavButtonActive === 8 && <MarketScope />}  */}
+            {/* {NavButtonActive === 9 && <EstimatedMarket />} following figma */}
 
         </div>
     );

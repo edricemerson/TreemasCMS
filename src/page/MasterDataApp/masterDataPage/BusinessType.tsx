@@ -2,8 +2,8 @@ import Button from "../../Button";
 import Searchbar from "../component/Searchbar";
 import { useState, useEffect } from "react";
 
-function BusinessSector (){
-    const [businessSectors, setBusinessSectors] = useState<any[]>([]);
+function BusinessType (){
+    const [businessType, setBusinessType] = useState<any[]>([]);
     const [search, setSearch] = useState("");
 
     const [showModal, setShowModal] = useState(false);
@@ -19,7 +19,7 @@ function BusinessSector (){
             const response = await fetch("http://localhost:3000/api/master-data/business_sectors");
             const result = await response.json();
             if (result.success) {
-                setBusinessSectors(result.data);
+                setBusinessType(result.data);
             }
         } catch (error) {
             console.error("Gagal mengambil data:", error);
@@ -78,7 +78,7 @@ function BusinessSector (){
     };
 
     const handleDelete = async (id: number) => {
-        if (!window.confirm("Are you sure you want to delete this business sector?")) return;
+        if (!window.confirm("Are you sure you want to delete this business type?")) return;
 
         try {
             await fetch(`http://localhost:3000/api/master-data/business_sectors/${id}`, {
@@ -94,7 +94,7 @@ function BusinessSector (){
         <>
             <div className="bg-white mt-6 px-4 py-3 border rounded-2xl">
                 <div className="flex items-center justify-between">
-                    <p className="font-semibold text-xl">Business Sector</p>
+                    <p className="font-semibold text-xl">Business Type</p>
 
                     <Button onClick={() => {setEditingId(null); setFormKode(""); setFormName(""); 
                     setFormDescription(""); setShowModal(true); setTimeout(() => setAnimateModal(true), 10);}}
@@ -127,7 +127,7 @@ function BusinessSector (){
                         </thead>
 
                         <tbody className="divide-y text-gray-400">
-                            {businessSectors
+                            {businessType
                                 .filter((sector) => sector.name.toLowerCase().includes(search.toLowerCase()))
                                 .map((sector, index) => (
                                 <tr
@@ -184,7 +184,7 @@ function BusinessSector (){
                     ${animateModal ? "scale-100 opacity-100" : "scale-95 opacity-0"}
                     `}>
                         <h2 className="text-xl font-semibold mb-4">
-                            {editingId ? "Edit Business Sector" : "Add New Business Sector"}
+                            {editingId ? "Edit Business Type" : "Add New Business Type"}
                         </h2>
                         <div className="flex flex-col gap-4">
                             <div>
@@ -236,4 +236,4 @@ function BusinessSector (){
         </>
     )
 } 
-export default BusinessSector
+export default BusinessType

@@ -2,8 +2,8 @@ import Button from "../../Button";
 import Searchbar from "../component/Searchbar";
 import { useState, useEffect } from "react";
 
-function LegalEntity (){
-    const [legalEntities, setLegalEntities] = useState<any[]>([]);
+function BusinessMaturity (){
+    const [businessMaturities, setBusinessMaturities] = useState<any[]>([]);
     const [search, setSearch] = useState("");
 
     const [showModal, setShowModal] = useState(false);
@@ -20,7 +20,7 @@ function LegalEntity (){
             const response = await fetch("http://localhost:3000/api/master-data/legal_entities");
             const result = await response.json();
             if (result.success) {
-                setLegalEntities(result.data);
+                setBusinessMaturities(result.data);
             }
         } catch (error) {
             console.error("Gagal mengambil data:", error);
@@ -81,7 +81,7 @@ function LegalEntity (){
     };
 
     const handleDelete = async (id: number) => {
-        if (!window.confirm("Are you sure you want to delete this legal entity?")) return;
+        if (!window.confirm("Are you sure you want to delete this business maturity?")) return;
 
         try {
             await fetch(`http://localhost:3000/api/master-data/legal_entities/${id}`, {
@@ -97,7 +97,7 @@ function LegalEntity (){
         <>
             <div className="bg-white mt-6 px-4 py-3 border rounded-2xl">
                 <div className="flex items-center justify-between">
-                    <p className="font-semibold text-xl">Legal Entity</p>
+                    <p className="font-semibold text-xl">Business Maturity</p>
 
                     <Button onClick={() => {setEditingId(null); setFormKode(""); setFormName(""); 
                     setFormDescription(""); setShowModal(true); setTimeout(() => setAnimateModal(true), 10);}}
@@ -130,9 +130,9 @@ function LegalEntity (){
                         </thead>
 
                         <tbody className="divide-y text-gray-400">
-                            {legalEntities
-                                .filter((entity) => entity.name.toLowerCase().includes(search.toLowerCase()))
-                                .map((entity, index) => (
+                            {businessMaturities
+                                .filter((entity: any) => entity.name.toLowerCase().includes(search.toLowerCase()))
+                                .map((entity: any, index: number) => (
                                 <tr
                                     key={entity.id}
                                     className="hover:bg-gray-100 transition-colors duration-300 ease-in-out"
@@ -187,7 +187,7 @@ function LegalEntity (){
                     ${animateModal ? "scale-100 opacity-100" : "scale-95 opacity-0"}
                     `}>
                         <h2 className="text-xl font-semibold mb-4">
-                            {editingId ? "Edit Legal Entity" : "Add New Legal Entity"}
+                            {editingId ? "Edit Business Maturity" : "Add New Business Maturity"}
                         </h2>
                         <div className="flex flex-col gap-4">
                             <div>
@@ -239,4 +239,4 @@ function LegalEntity (){
         </>
     )
 } 
-export default LegalEntity
+export default BusinessMaturity
