@@ -1,4 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import Diagram from "./Diagramv3";
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 
 type ReportData = {
     profile_id: number;
@@ -12,10 +15,26 @@ type ReportData = {
     assessment_date: string | null;
 };
 
+const pdfBtnStyle: React.CSSProperties = {
+    background: '#000',
+    color: '#fff',
+    border: 'none',
+    borderRadius: 8,
+    padding: '10px 20px',
+    cursor: 'pointer',
+    fontSize: 14,
+    fontWeight: 600,
+    
+};
+
 function Reports() {
     const [reports, setReports] = useState<ReportData[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [sortOrder, setSortOrder] = useState<"desc" | "asc">("desc");
+    const [selectedUser, setSelectedUser] = useState<ReportData | null>(null);
+    const [insights, setInsights] = useState<string[]>([]);
+    const [pdfLoading, setPdfLoading] = useState(false);
+    const resultsRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         const fetchReports = async () => {
@@ -29,7 +48,7 @@ function Reports() {
                     }
                 });
                 const result = await response.json();
-                
+
                 if (result.success) {
                     setReports(result.data);
                 } else {
@@ -65,9 +84,39 @@ function Reports() {
             hour: "2-digit", minute: "2-digit"
         }).format(date);
     };
-return (
+
+    async function downloadPDF() {
+            if (!resultsRef.current) return;
+            setPdfLoading(true);
+            try {
+                const canvas = await html2canvas(resultsRef.current, { scale: 2, useCORS: true });
+                const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+                const pageW = pdf.internal.pageSize.getWidth();
+                const pageH = pdf.internal.pageSize.getHeight();
+                const imgW = pageW - 20;
+                const imgH = (canvas.height * imgW) / canvas.width;
+                let remaining = imgH;
+                let srcY = 0;
+                while (remaining > 0) {
+                    const sliceH = Math.min(remaining, pageH - 20);
+                    const sliceCanvas = document.createElement('canvas');
+                    sliceCanvas.width = canvas.width;
+                    sliceCanvas.height = (sliceH / imgH) * canvas.height;
+                    const ctx = sliceCanvas.getContext('2d')!;
+                    ctx.drawImage(canvas, 0, srcY, canvas.width, sliceCanvas.height, 0, 0, canvas.width, sliceCanvas.height);
+                    if (srcY > 0) pdf.addPage();
+                    pdf.addImage(sliceCanvas.toDataURL('image/png'), 'PNG', 10, 10, imgW, sliceH);
+                    srcY += sliceCanvas.height;
+                    remaining -= sliceH;
+                }
+                pdf.save('BHI_Assessment_Report.pdf');
+            } finally {
+                setPdfLoading(false);
+            }
+        }
+    return (
         <div className="md:p-8 bg-gray-50 min-h-screen overflow-x-hidden box-border ml-64 p-6">
-            
+
             <div className="mb-6">
                 <h1 className="text-3xl font-semibold text-gray-900">Reports</h1>
                 <p className="text-gray-500 mt-1">
@@ -109,7 +158,7 @@ return (
                                 </tr>
                             ) : (
                                 sortedReports.map((report, index) => (
-                                    <tr key={report.profile_id} className="hover:bg-gray-50 transition-colors">
+                                    <tr key={report.profile_id} className="hover:bg-gray-50 transition-colors cursor-pointer" onClick={() => { setSelectedUser(report); setInsights([]); }}>
                                         <td className="py-4 px-6 text-sm text-gray-900">{index + 1}</td>
                                         <td className="py-4 px-6 text-sm text-gray-900 font-medium">{report.company_name}</td>
                                         <td className="py-4 px-6 text-sm text-gray-600">
@@ -120,14 +169,10 @@ return (
                                             {formatDate(report.sort_date)}
                                         </td>
                                         <td className="py-4 px-6 text-sm">
-                                            <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                                                report.status === 'Baru Mengisi Form' ? 'bg-yellow-100 text-yellow-800' : 'bg-teal-100 text-teal-800'
-                                            }`}>
+                                            <span className={`px-3 py-1 rounded-full text-xs font-medium ${report.status === 'Baru Mengisi Form' ? 'bg-yellow-100 text-yellow-800' : 'bg-teal-100 text-teal-800'
+                                                }`}>
                                                 {report.status}
                                             </span>
-                                        </td>
-                                        <td className="py-4 px-6 text-sm font-bold text-teal-600">
-                                            {report.total_score !== null ? report.total_score : "-"}
                                         </td>
                                     </tr>
                                 ))
@@ -136,6 +181,73 @@ return (
                     </table>
                 </div>
             </div>
+            {selectedUser && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-2xl p-6 w-7xl shadow-xl max-h-[90vh] overflow-y-auto">
+                        <div className="flex w-full justify-between">
+                            <h2 className="text-lg font-bold">User's {selectedUser.company_name} Report</h2>
+                            <button
+                                type="button"
+                                onClick={() => setSelectedUser(null)}
+                                className="text-gray-400 hover:text-gray-700 text-xl font-bold transition duration-200"
+                            >
+                                X
+                            </button>
+                        </div>
+
+                        <div className="border-b border-gray-300 mb-4" />
+                        <div className='flex justify-center'>
+                            <div ref={resultsRef}>
+                                <Diagram />
+                            </div>
+                        </div>
+
+                        <form className='flex flex-col mt-5'>
+                            <div className='flex mb-3'>
+                                <div className='flex' style={{marginBottom: 12}}>
+                                    <label className='mr-4 font-semibold' style={{fontSize:25}}>
+                                        Insights
+                                    </label>
+
+                                    <button type='button' disabled={insights.length >= 5}
+                                        className={` ${insights.length >= 5 ? 'bg-gray-400 cursor-not-allowed opacity-50' 
+                                        :'bg-black'}`} style={pdfBtnStyle}
+                                        onClick={() => setInsights(prev => [...prev, ''])}
+                                    >
+                                        Add Insights
+                                    </button >
+                                </div>
+
+                                <div className='flex ml-auto'>
+                                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12}}>
+                                        <button type="button" onClick={downloadPDF} disabled={pdfLoading} style={pdfBtnStyle}>
+                                            {pdfLoading ? 'Generating PDF…' : 'Download PDF'}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            {insights.map((value, i) => (
+                                <div key={i} className='flex items-center gap-2 my-1'>
+                                    <textarea
+                                        className='w-full border rounded-lg px-3 py-1 bg-gray-50'
+                                        placeholder='Write insights here'
+                                        value={value}
+                                        onChange={(e) => setInsights(prev => prev.map((v, idx) => idx === i ? e.target.value : v))}
+                                    />
+                                    <button type='button' className='text-gray-400 font-normal text-lg 
+                                        hover:text-red-500 hover:font-bold transition duration-200'
+                                        onClick={() => setInsights(prev => prev.filter((_, idx) => idx !== i))}
+                                    >
+                                        X
+                                    </button>
+                                </div>
+                            ))}
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

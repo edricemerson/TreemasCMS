@@ -8,7 +8,8 @@ import type { SurveyAnswer, ProfilBisnis } from './utils/excelParser';
 import { calculateScores, getAnalisisText } from './utils/scoreCalculator';
 import type { SectionResult } from './utils/scoreCalculator';
 
-import RadarChartComponent from '../components/RadarChartComponent';
+import RadarChartComponent from './utils/RadarChartComponent';
+import QuadrantChart from './utils/QuadrantChart';
 
 // Toggle financial scale: set to true for max 4, false for max 100
 const USE_FINANCIAL_MAX_4 = false;
@@ -16,23 +17,26 @@ const USE_FINANCIAL_MAX_4 = false;
 // ---- Colour helpers ----
 
 function getRatingLabel(score100: number): string {
-    if (score100 >= 75) return 'SANGAT BAIK';
-    if (score100 >= 55) return 'BAIK';
-    if (score100 >= 35) return 'CUKUP';
-    return 'KURANG';
+    if (score100 >= 85) return 'Sangat Bagus';
+    if (score100 >= 75) return 'Bagus';
+    if (score100 >= 65) return 'Cukup';
+    if (score100 >= 55) return 'Kurang';
+    return 'Sangat Kurang';
 }
 
 function getRatingColor(score100: number): string {
-    if (score100 >= 75) return '#1a7a4a';
-    if (score100 >= 55) return '#2471a3';
-    if (score100 >= 35) return '#d68910';
-    return '#c0392b';
+    if (score100 >= 85) return '#1a7a4a'; // hijau tua
+    if (score100 >= 75) return '#2e8b57'; // hijau
+    if (score100 >= 65) return '#d68910'; // oranye
+    if (score100 >= 55) return '#e67e22'; // oranye tua
+    return '#c0392b';                     // merah
 }
 
 function getRatingBg(score100: number): string {
-    if (score100 >= 75) return '#d5f5e3';
-    if (score100 >= 55) return '#d6eaf8';
-    if (score100 >= 35) return '#fef9e7';
+    if (score100 >= 85) return '#d5f5e3';
+    if (score100 >= 75) return '#e3f5ea';
+    if (score100 >= 65) return '#fef9e7';
+    if (score100 >= 55) return '#fdebd0';
     return '#fadbd8';
 }
 
@@ -51,24 +55,9 @@ function calcOverallScore(sv: number, fh: number, cd: number): number {
     return Math.round((svN + fhN + cdN) / 3);
 }
 
-function getKeterangan(score: number, isFinancial: boolean, useMax4 = false): string {
+function getKeterangan(score: number, isFinancial: boolean, _useMax4 = false): string {
     if (score <= 0) return '-';
-    if (isFinancial) {
-        if (useMax4) {
-            if (score >= 3.4) return 'Sangat Bagus';
-            if (score >= 2.8) return 'Bagus';
-            if (score >= 2.2) return 'Kurang';
-            return 'Sangat Kurang';
-        }
-        if (score >= 85) return 'Sangat Bagus';
-        if (score >= 70) return 'Bagus';
-        if (score >= 55) return 'Kurang';
-        return 'Sangat Kurang';
-    }
-    if (score >= 3.5) return 'Sangat Bagus';
-    if (score >= 2.5) return 'Bagus';
-    if (score >= 1.5) return 'Kurang';
-    return 'Sangat Kurang';
+    return getRatingLabel(to100(score, isFinancial));
 }
 
 function isBelowStandard(score: number, isFinancial: boolean): boolean {
@@ -77,18 +66,22 @@ function isBelowStandard(score: number, isFinancial: boolean): boolean {
     return score < std;
 }
 
+// Map keterangan label -> representative 0-100 score so badges reuse the
+// single rating palette (getRatingColor/getRatingBg) shared with the legend.
+function ketToScore100(ket: string): number {
+    if (ket.includes('Sangat Bagus')) return 85;
+    if (ket.includes('Bagus')) return 75;
+    if (ket.includes('Cukup')) return 65;
+    if (ket.includes('Kurang') && !ket.includes('Sangat')) return 55;
+    return 0; // Sangat Kurang / '-'
+}
+
 function badgeColor(ket: string): string {
-    if (ket.includes('Sangat Bagus')) return '#1a7a4a';
-    if (ket.includes('Bagus')) return '#2471a3';
-    if (ket.includes('Kurang') && !ket.includes('Sangat')) return '#d68910';
-    return '#c0392b';
+    return getRatingColor(ketToScore100(ket));
 }
 
 function badgeBg(ket: string): string {
-    if (ket.includes('Sangat Bagus')) return '#d5f5e3';
-    if (ket.includes('Bagus')) return '#d6eaf8';
-    if (ket.includes('Kurang') && !ket.includes('Sangat')) return '#fef9e7';
-    return '#fadbd8';
+    return getRatingBg(ketToScore100(ket));
 }
 
 function riskLevel(ket: string): 'HIGH' | 'MEDIUM' | null {
@@ -99,7 +92,7 @@ function riskLevel(ket: string): 'HIGH' | 'MEDIUM' | null {
 
 // ---- Component ----
 
-export default function Diagram() {
+export default function AssessmentPage() {
     const navigate = useNavigate();
     const resultsRef = useRef<HTMLDivElement>(null);
     const [answers, setAnswers] = useState<Record<string, SurveyAnswer> | null>(null);
@@ -248,17 +241,17 @@ export default function Diagram() {
         : '';
 
     return (
-        // GANTI min height tadi 100vh
-        <div style={{ minHeight: '10vh', background: '#fff', fontFamily: 'Arial, sans-serif' }}>
+        <div style={{ minHeight: '10vh', background: '#f4f6fa', fontFamily: 'Arial, sans-serif' }}
+        className='rounded-xl'>
             {/* Top bar */}
-            <div style={topBarStyle}>
+            {/* <div style={topBarStyle}>
                 <span style={{ fontWeight: 700, fontSize: 16, color: '#1f3864' }}>BHI Assessment</span>
                 <button onClick={handleLogout} style={logoutBtnStyle}>Logout</button>
-            </div>
+            </div> */}
 
-            <div style={{ width: 1200, margin: '0 auto', padding: '24px 16px' }}>
+            <div style={{ maxWidth: 1220, margin: '0 auto', padding: '24px 16px',width:1220}}>
                 {/* Upload area */}
-                <div
+                {/* <div
                     onDrop={onDrop}
                     onDragOver={(e) => e.preventDefault()}
                     style={uploadAreaStyle}
@@ -278,18 +271,18 @@ export default function Diagram() {
                     <p style={{ margin: '4px 0 0', fontSize: 12, color: '#888' }}>
                         Click or drag & drop an .xlsx file with a SURVEY_RESULT sheet
                     </p>
-                </div>
+                </div> */}
 
-                {loading && <p style={{ textAlign: 'center', color: '#555' }}>Processing…</p>}
-                {error && <p style={{ textAlign: 'center', color: '#c0392b' }}>{error}</p>}
+                {/* {loading && <p style={{ textAlign: 'center', color: '#555' }}>Processing…</p>}
+                {error && <p style={{ textAlign: 'center', color: '#c0392b' }}>{error}</p>} */}
 
-                {results && (
+                {/* {results && ( */}
                     <>
-                        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
+                        {/* <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
                             <button onClick={downloadPDF} disabled={pdfLoading} style={pdfBtnStyle}>
                                 {pdfLoading ? 'Generating PDF…' : '⬇ Download PDF'}
                             </button>
-                        </div>
+                        </div> */}
 
                         {/* ===== REPORT CARD ===== */}
                         <div ref={resultsRef} style={{ background: '#fff', borderRadius: 8, overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,0.1)' }}>
@@ -376,11 +369,11 @@ export default function Diagram() {
                                 {/* MAIN CONTENT */}
                                 <div style={{ flex: 1, padding: '20px 20px 0' }}>
 
-                                    {/* ROW 1: Pillar scores + Radar */}
+                                    {/* ROW 1: Pillar scores + Quadrant + Radar */}
                                     <div style={{ display: 'flex', gap: 16, marginBottom: 20 }}>
 
                                         {/* Skor per Pilar */}
-                                        <div style={{ flex: 1 }}>
+                                        <div style={{ flex: 1, minWidth: 0 }}>
                                             <SectionTitle>Skor per Pilar</SectionTitle>
                                             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                                                 <PillarCard
@@ -407,8 +400,19 @@ export default function Diagram() {
                                             </div>
                                         </div>
 
+                                        {/* Posisi Kuadran */}
+                                        <div style={{ width: 260, flexShrink: 0 }}>
+                                            <SectionTitle>Posisi Kuadran</SectionTitle>
+                                            <QuadrantChart
+                                                coreDrivers={digitalizationAvg}
+                                                financialHealth={financial?.score ?? 0}
+                                                strategicValue={strategic?.score ?? 0}
+                                                financialMax={USE_FINANCIAL_MAX_4 ? 4 : 100}
+                                            />
+                                        </div>
+
                                         {/* Radar Overview */}
-                                        <div style={{ width: 260 }}>
+                                        <div style={{ width: 260, flexShrink: 0 }}>
                                             <SectionTitle>Radar Overview</SectionTitle>
                                             <RadarChartComponent
                                                 data={coreRadarData}
@@ -417,6 +421,34 @@ export default function Diagram() {
                                                 width={260}
                                                 height={200}
                                             />
+                                        </div>
+                                    </div>
+
+                                    {/* ROW: Legend Skala Penilaian */}
+                                    <div style={{ marginBottom: 20 }}>
+                                        <SectionTitle>Skala Penilaian</SectionTitle>
+                                        <div style={{
+                                            display: 'flex', flexWrap: 'wrap', gap: 10,
+                                            padding: '12px 16px', borderRadius: 6,
+                                            background: '#f8f9fb', border: '1px solid #e8ecf0',
+                                        }}>
+                                            {[
+                                                { label: 'Sangat Bagus', range: '≥ 85', score: 85 },
+                                                { label: 'Bagus', range: '≥ 75', score: 75 },
+                                                { label: 'Cukup', range: '≥ 65', score: 65 },
+                                                { label: 'Kurang', range: '≥ 55', score: 55 },
+                                                { label: 'Sangat Kurang', range: '< 55', score: 0 },
+                                            ].map((item) => {
+                                                const c = getRatingColor(item.score);
+                                                return (
+                                                    <div key={item.label} style={{ display: 'flex', alignItems: 'center', gap: 6, flex: '1 1 0', minWidth: 120 }}>
+                                                        <span style={{ width: 12, height: 12, borderRadius: 3, background: c, flexShrink: 0 }} />
+                                                        <span style={{ fontSize: 11, color: '#333' }}>
+                                                            <strong style={{ color: c }}>{item.range}</strong> {item.label}
+                                                        </span>
+                                                    </div>
+                                                );
+                                            })}
                                         </div>
                                     </div>
 
@@ -548,7 +580,7 @@ export default function Diagram() {
 
                         </div>
                     </>
-                )}
+                {/* )} */}
             </div>
         </div>
     );
