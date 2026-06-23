@@ -66,10 +66,10 @@ function Reports() {
         }).format(date);
     };
 return (
-        <div className="p-6 md:p-8 bg-gray-50 min-h-screen overflow-x-hidden box-border">
+        <div className="md:p-8 bg-gray-50 min-h-screen overflow-x-hidden box-border ml-64 p-6">
             
             <div className="mb-6">
-                <h1 className="text-3xl font-bold text-gray-900">Reports</h1>
+                <h1 className="text-3xl font-semibold text-gray-900">Reports</h1>
                 <p className="text-gray-500 mt-1">
                     See the scoring of your company and extract insights here
                 </p>
@@ -96,7 +96,6 @@ return (
                                     </div>
                                 </th>
                                 <th className="py-4 px-6 font-bold text-sm text-black">STATUS</th>
-                                <th className="py-4 px-6 font-bold text-sm text-black">SCORE</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100">
