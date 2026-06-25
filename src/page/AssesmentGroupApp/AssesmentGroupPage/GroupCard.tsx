@@ -80,7 +80,7 @@ useEffect(() => {
                         answers: q.options?.map((o:any) => ({ 
                             id: o.id, 
                             text: o.label, 
-                            score: parseFloat(o.points) || 0,
+                            score: o.score ?? 0,
                             type: o.type || "" 
                         })) || []
                     })) || [];

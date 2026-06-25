@@ -92,7 +92,7 @@ function riskLevel(ket: string): 'HIGH' | 'MEDIUM' | null {
 
 // ---- Component ----
 
-export default function AssessmentPage() {
+export default function AssessmentPage({ profilData, notesData }: { profilData?: Partial<ProfilBisnis>; notesData?: string[] }) {
     const navigate = useNavigate();
     const resultsRef = useRef<HTMLDivElement>(null);
     const [answers, setAnswers] = useState<Record<string, SurveyAnswer> | null>(null);
@@ -240,16 +240,18 @@ export default function AssessmentPage() {
         })), 2.5)
         : '';
 
+    const mergedProfil = { ...profilData, ...profil };
+
     return (
         <div style={{ minHeight: '10vh', background: '#f4f6fa', fontFamily: 'Arial, sans-serif' }}
-        className='rounded-xl'>
+            className='rounded-xl'>
             {/* Top bar */}
             {/* <div style={topBarStyle}>
                 <span style={{ fontWeight: 700, fontSize: 16, color: '#1f3864' }}>BHI Assessment</span>
                 <button onClick={handleLogout} style={logoutBtnStyle}>Logout</button>
             </div> */}
 
-            <div style={{ maxWidth: 1220, margin: '0 auto', padding: '24px 16px',width:1220}}>
+            <div style={{ maxWidth: 1220, margin: '0 auto', padding: '24px 16px', width: 1220 }}>
                 {/* Upload area */}
                 {/* <div
                     onDrop={onDrop}
@@ -277,309 +279,313 @@ export default function AssessmentPage() {
                 {error && <p style={{ textAlign: 'center', color: '#c0392b' }}>{error}</p>} */}
 
                 {/* {results && ( */}
-                    <>
-                        {/* <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
+                <>
+                    {/* <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
                             <button onClick={downloadPDF} disabled={pdfLoading} style={pdfBtnStyle}>
                                 {pdfLoading ? 'Generating PDF…' : '⬇ Download PDF'}
                             </button>
                         </div> */}
 
-                        {/* ===== REPORT CARD ===== */}
-                        <div ref={resultsRef} style={{ background: '#fff', borderRadius: 8, overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,0.1)' }}>
+                    {/* ===== REPORT CARD ===== */}
+                    <div ref={resultsRef} style={{ background: '#fff', borderRadius: 8, overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,0.1)' }}>
 
-                            {/* HEADER */}
-                            <div style={{ background: '#1f3864', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-                                    <div style={{ background: '#fff', borderRadius: 6, padding: '6px 10px', fontWeight: 900, fontSize: 18, color: '#1f3864', lineHeight: 1 }}>
-                                        BHI<sup style={{ fontSize: 10 }}>™</sup>
+                        {/* HEADER */}
+                        <div style={{ background: '#1f3864', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                                <div style={{ background: '#fff', borderRadius: 6, padding: '6px 10px', fontWeight: 900, fontSize: 18, color: '#1f3864', lineHeight: 1 }}>
+                                    BHI<sup style={{ fontSize: 10 }}>™</sup>
+                                </div>
+                                <div>
+                                    <div style={{ color: '#fff', fontWeight: 800, fontSize: 18, letterSpacing: 1 }}>
+                                        LAPORAN PENILAIAN BUSINESS HEALTH INDEX
                                     </div>
-                                    <div>
-                                        <div style={{ color: '#fff', fontWeight: 800, fontSize: 18, letterSpacing: 1 }}>
-                                            LAPORAN PENILAIAN BUSINESS HEALTH INDEX
-                                        </div>
-                                        <div style={{ color: '#a8c4e8', fontSize: 11 }}>
-                                            Berdasarkan TriCore™ Business Diagnostics Framework
-                                        </div>
+                                    <div style={{ color: '#a8c4e8', fontSize: 11 }}>
+                                        Berdasarkan TriCore™ Business Diagnostics Framework
                                     </div>
                                 </div>
-                                <div style={{ textAlign: 'right' }}>
-                                    <div style={{ color: '#a8c4e8', fontSize: 10, textTransform: 'uppercase', letterSpacing: 0.5 }}>Laporan ID</div>
-                                    <div style={{ color: '#fff', fontWeight: 700, fontSize: 13 }}>{laporanId}</div>
-                                    <div style={{ color: '#a8c4e8', fontSize: 10, textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 4 }}>Tanggal Laporan</div>
-                                    <div style={{ color: '#fff', fontSize: 12 }}>{tanggalLaporan}</div>
+                            </div>
+                            <div style={{ textAlign: 'right' }}>
+                                <div style={{ color: '#a8c4e8', fontSize: 10, textTransform: 'uppercase', letterSpacing: 0.5 }}>Laporan ID</div>
+                                <div style={{ color: '#fff', fontWeight: 700, fontSize: 13 }}>{laporanId}</div>
+                                <div style={{ color: '#a8c4e8', fontSize: 10, textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 4 }}>Tanggal Laporan</div>
+                                <div style={{ color: '#fff', fontSize: 12 }}>{tanggalLaporan}</div>
+                            </div>
+                        </div>
+
+                        {/* BODY — sidebar + main */}
+                        <div style={{ display: 'flex', alignItems: 'stretch' }}>
+
+                            {/* LEFT SIDEBAR */}
+                            <div style={{ width: 190, flexShrink: 0, background: '#1f3864', padding: '20px 16px', color: '#fff', borderTop: '1px solid #2c4f8a' }}>
+                                <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', color: '#a8c4e8', marginBottom: 8 }}>
+                                    Ringkasan Skor
+                                </div>
+                                <div style={{ fontSize: 10, color: '#a8c4e8', marginBottom: 2 }}>BHI SCORE</div>
+                                <div style={{ fontSize: 44, fontWeight: 900, lineHeight: 1, color: '#fff' }}>{overallScore}</div>
+                                <div style={{ fontSize: 12, color: '#a8c4e8', marginBottom: 8 }}>/100</div>
+                                <div style={{
+                                    display: 'inline-block',
+                                    background: getRatingBg(overallScore),
+                                    color: getRatingColor(overallScore),
+                                    fontWeight: 700,
+                                    fontSize: 10,
+                                    padding: '3px 10px',
+                                    borderRadius: 12,
+                                    marginBottom: 4,
+                                }}>
+                                    {getRatingLabel(overallScore)}
+                                </div>
+                                <div style={{ fontSize: 9, color: '#a8c4e8', marginBottom: 20, lineHeight: 1.4 }}>
+                                    Peringkat Kesehatan Bisnis
+                                </div>
+
+                                <div style={{ borderTop: '1px solid #2c4f8a', paddingTop: 14, marginBottom: 14 }}>
+                                    <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', color: '#a8c4e8', marginBottom: 8 }}>
+                                        Profil Bisnis
+                                    </div>
+                                    {[
+                                        { label: 'Nama Bisnis', value: mergedProfil.namaBisnis },
+                                        { label: 'Industri', value: mergedProfil.industri?.toUpperCase() },
+                                        { label: 'Skala Bisnis', value: mergedProfil.skalaBisnis?.toUpperCase() },
+                                        { label: 'Lokasi', value: mergedProfil.lokasi },
+                                        { label: 'Karyawan', value: mergedProfil.jumlahKaryawan },
+                                    ].map(({ label, value }) => (
+                                        <div key={label} style={{ marginBottom: 6 }}>
+                                            <div style={{ fontSize: 8, color: '#a8c4e8', textTransform: 'uppercase', letterSpacing: 0.5 }}>{label}</div>
+                                            <div style={{ fontSize: 10, color: '#fff', wordBreak: 'break-word' }}>{value || '—'}</div>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                <div style={{ borderTop: '1px solid #2c4f8a', paddingTop: 14 }}>
+                                    <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', color: '#a8c4e8', marginBottom: 8 }}>
+                                        Data Digunakan
+                                    </div>
+                                    {['Laporan Keuangan', 'Data Operasional', 'Data Penjualan', 'Wawancara & Kuesioner'].map((d) => (
+                                        <div key={d} style={{ fontSize: 9, color: '#a8c4e8', lineHeight: 1.7 }}>• {d}</div>
+                                    ))}
                                 </div>
                             </div>
 
-                            {/* BODY — sidebar + main */}
-                            <div style={{ display: 'flex', alignItems: 'stretch' }}>
+                            {/* MAIN CONTENT */}
+                            <div style={{ flex: 1, padding: '20px 20px 0' }}>
 
-                                {/* LEFT SIDEBAR */}
-                                <div style={{ width: 190, flexShrink: 0, background: '#1f3864', padding: '20px 16px', color: '#fff', borderTop: '1px solid #2c4f8a' }}>
-                                    <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', color: '#a8c4e8', marginBottom: 8 }}>
-                                        Ringkasan Skor
-                                    </div>
-                                    <div style={{ fontSize: 10, color: '#a8c4e8', marginBottom: 2 }}>BHI SCORE</div>
-                                    <div style={{ fontSize: 44, fontWeight: 900, lineHeight: 1, color: '#fff' }}>{overallScore}</div>
-                                    <div style={{ fontSize: 12, color: '#a8c4e8', marginBottom: 8 }}>/100</div>
-                                    <div style={{
-                                        display: 'inline-block',
-                                        background: getRatingBg(overallScore),
-                                        color: getRatingColor(overallScore),
-                                        fontWeight: 700,
-                                        fontSize: 10,
-                                        padding: '3px 10px',
-                                        borderRadius: 12,
-                                        marginBottom: 4,
-                                    }}>
-                                        {getRatingLabel(overallScore)}
-                                    </div>
-                                    <div style={{ fontSize: 9, color: '#a8c4e8', marginBottom: 20, lineHeight: 1.4 }}>
-                                        Peringkat Kesehatan Bisnis
-                                    </div>
+                                {/* ROW 1: Pillar scores + Quadrant + Radar */}
+                                <div style={{ display: 'flex', gap: 16, marginBottom: 20 }}>
 
-                                    <div style={{ borderTop: '1px solid #2c4f8a', paddingTop: 14, marginBottom: 14 }}>
-                                        <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', color: '#a8c4e8', marginBottom: 8 }}>
-                                            Profil Bisnis
+                                    {/* Skor per Pilar */}
+                                    <div style={{ flex: 1, minWidth: 0 }}>
+                                        <SectionTitle>Skor per Pilar</SectionTitle>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                                            <PillarCard
+                                                name="Strategic Value"
+                                                score={USE_FINANCIAL_MAX_4 ? (strategic?.score ?? 0) : to100(strategic?.score ?? 0, false)}
+                                                unit={USE_FINANCIAL_MAX_4 ? '/4' : '/100'}
+                                                score100={to100(strategic?.score ?? 0, false)}
+                                                ket={getKeterangan(strategic?.score ?? 0, false)}
+                                            />
+                                            <PillarCard
+                                                name="Financial Health"
+                                                score={financial?.score ?? 0}
+                                                unit={USE_FINANCIAL_MAX_4 ? '/4' : '/100'}
+                                                score100={to100(financial?.score ?? 0, true)}
+                                                ket={getKeterangan(financial?.score ?? 0, true, USE_FINANCIAL_MAX_4)}
+                                            />
+                                            <PillarCard
+                                                name="Core Drivers"
+                                                score={USE_FINANCIAL_MAX_4 ? digitalizationAvg : to100(digitalizationAvg, false)}
+                                                unit={USE_FINANCIAL_MAX_4 ? '/4' : '/100'}
+                                                score100={to100(digitalizationAvg, false)}
+                                                ket={getKeterangan(digitalizationAvg, false)}
+                                            />
                                         </div>
-                                        {[
-                                            { label: 'Nama Bisnis', value: profil.namaBisnis },
-                                            { label: 'Industri', value: (profil.industri)?.toUpperCase() },
-                                            { label: 'Skala Bisnis', value: (profil.skalaBisnis)?.toUpperCase() },
-                                            { label: 'Tahun Berdiri', value: profil.tahunBerdiri },
-                                            { label: 'Lokasi', value: profil.lokasi },
-                                            { label: 'Karyawan', value: profil.jumlahKaryawan },
-                                        ].map(({ label, value }) => (
-                                            <div key={label} style={{ marginBottom: 6 }}>
-                                                <div style={{ fontSize: 8, color: '#a8c4e8', textTransform: 'uppercase', letterSpacing: 0.5 }}>{label}</div>
-                                                <div style={{ fontSize: 10, color: '#fff', wordBreak: 'break-word' }}>{value || '—'}</div>
-                                            </div>
-                                        ))}
                                     </div>
 
-                                    <div style={{ borderTop: '1px solid #2c4f8a', paddingTop: 14 }}>
-                                        <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', color: '#a8c4e8', marginBottom: 8 }}>
-                                            Data Digunakan
-                                        </div>
-                                        {['Laporan Keuangan', 'Data Operasional', 'Data Penjualan', 'Wawancara & Kuesioner'].map((d) => (
-                                            <div key={d} style={{ fontSize: 9, color: '#a8c4e8', lineHeight: 1.7 }}>• {d}</div>
-                                        ))}
+                                    {/* Posisi Kuadran */}
+                                    <div style={{ width: 260, flexShrink: 0 }}>
+                                        <SectionTitle>Posisi Kuadran</SectionTitle>
+                                        <QuadrantChart
+                                            coreDrivers={digitalizationAvg}
+                                            financialHealth={financial?.score ?? 0}
+                                            strategicValue={strategic?.score ?? 0}
+                                            financialMax={USE_FINANCIAL_MAX_4 ? 4 : 100}
+                                        />
+                                    </div>
+
+                                    {/* Radar Overview */}
+                                    <div style={{ width: 260, flexShrink: 0 }}>
+                                        <SectionTitle>Radar Overview</SectionTitle>
+                                        <RadarChartComponent
+                                            data={coreRadarData}
+                                            color="#1f3864"
+                                            fillOpacity={0.3}
+                                            width={260}
+                                            height={200}
+                                        />
                                     </div>
                                 </div>
 
-                                {/* MAIN CONTENT */}
-                                <div style={{ flex: 1, padding: '20px 20px 0' }}>
-
-                                    {/* ROW 1: Pillar scores + Quadrant + Radar */}
-                                    <div style={{ display: 'flex', gap: 16, marginBottom: 20 }}>
-
-                                        {/* Skor per Pilar */}
-                                        <div style={{ flex: 1, minWidth: 0 }}>
-                                            <SectionTitle>Skor per Pilar</SectionTitle>
-                                            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                                                <PillarCard
-                                                    name="Strategic Value"
-                                                    score={USE_FINANCIAL_MAX_4 ? (strategic?.score ?? 0) : to100(strategic?.score ?? 0, false)}
-                                                    unit={USE_FINANCIAL_MAX_4 ? '/4' : '/100'}
-                                                    score100={to100(strategic?.score ?? 0, false)}
-                                                    ket={getKeterangan(strategic?.score ?? 0, false)}
-                                                />
-                                                <PillarCard
-                                                    name="Financial Health"
-                                                    score={financial?.score ?? 0}
-                                                    unit={USE_FINANCIAL_MAX_4 ? '/4' : '/100'}
-                                                    score100={to100(financial?.score ?? 0, true)}
-                                                    ket={getKeterangan(financial?.score ?? 0, true, USE_FINANCIAL_MAX_4)}
-                                                />
-                                                <PillarCard
-                                                    name="Core Drivers"
-                                                    score={USE_FINANCIAL_MAX_4 ? digitalizationAvg : to100(digitalizationAvg, false)}
-                                                    unit={USE_FINANCIAL_MAX_4 ? '/4' : '/100'}
-                                                    score100={to100(digitalizationAvg, false)}
-                                                    ket={getKeterangan(digitalizationAvg, false)}
-                                                />
-                                            </div>
-                                        </div>
-
-                                        {/* Posisi Kuadran */}
-                                        <div style={{ width: 260, flexShrink: 0 }}>
-                                            <SectionTitle>Posisi Kuadran</SectionTitle>
-                                            <QuadrantChart
-                                                coreDrivers={digitalizationAvg}
-                                                financialHealth={financial?.score ?? 0}
-                                                strategicValue={strategic?.score ?? 0}
-                                                financialMax={USE_FINANCIAL_MAX_4 ? 4 : 100}
-                                            />
-                                        </div>
-
-                                        {/* Radar Overview */}
-                                        <div style={{ width: 260, flexShrink: 0 }}>
-                                            <SectionTitle>Radar Overview</SectionTitle>
-                                            <RadarChartComponent
-                                                data={coreRadarData}
-                                                color="#1f3864"
-                                                fillOpacity={0.3}
-                                                width={260}
-                                                height={200}
-                                            />
-                                        </div>
+                                {/* ROW: Legend Skala Penilaian */}
+                                <div style={{ marginBottom: 20 }}>
+                                    <SectionTitle>Skala Penilaian</SectionTitle>
+                                    <div style={{
+                                        display: 'flex', flexWrap: 'wrap', gap: 10,
+                                        padding: '12px 16px', borderRadius: 6,
+                                        background: '#f8f9fb', border: '1px solid #e8ecf0',
+                                    }}>
+                                        {[
+                                            { label: 'Sangat Bagus', range: '≥ 85', score: 85 },
+                                            { label: 'Bagus', range: '≥ 75', score: 75 },
+                                            { label: 'Cukup', range: '≥ 65', score: 65 },
+                                            { label: 'Kurang', range: '≥ 55', score: 55 },
+                                            { label: 'Sangat Kurang', range: '< 55', score: 0 },
+                                        ].map((item) => {
+                                            const c = getRatingColor(item.score);
+                                            return (
+                                                <div key={item.label} style={{ display: 'flex', alignItems: 'center', gap: 6, flex: '1 1 0', minWidth: 120 }}>
+                                                    <span style={{ width: 12, height: 12, borderRadius: 3, background: c, flexShrink: 0 }} />
+                                                    <span style={{ fontSize: 11, color: '#333' }}>
+                                                        <strong style={{ color: c }}>{item.range}</strong> {item.label}
+                                                    </span>
+                                                </div>
+                                            );
+                                        })}
                                     </div>
+                                </div>
 
-                                    {/* ROW: Legend Skala Penilaian */}
-                                    <div style={{ marginBottom: 20 }}>
-                                        <SectionTitle>Skala Penilaian</SectionTitle>
-                                        <div style={{
-                                            display: 'flex', flexWrap: 'wrap', gap: 10,
-                                            padding: '12px 16px', borderRadius: 6,
-                                            background: '#f8f9fb', border: '1px solid #e8ecf0',
-                                        }}>
-                                            {[
-                                                { label: 'Sangat Bagus', range: '≥ 85', score: 85 },
-                                                { label: 'Bagus', range: '≥ 75', score: 75 },
-                                                { label: 'Cukup', range: '≥ 65', score: 65 },
-                                                { label: 'Kurang', range: '≥ 55', score: 55 },
-                                                { label: 'Sangat Kurang', range: '< 55', score: 0 },
-                                            ].map((item) => {
-                                                const c = getRatingColor(item.score);
+                                {/* ROW 2: Detail Skor per Metrik */}
+                                <div style={{ marginBottom: 20 }}>
+                                    <SectionTitle>Detail Skor per Metrik</SectionTitle>
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
+                                        <MetrikColumn
+                                            title="Strategic Value"
+                                            color="#2980b9"
+                                            rows={(strategic?.subsections ?? []).map((s) => ({
+                                                name: s.name,
+                                                score: USE_FINANCIAL_MAX_4 ? s.score : to100(s.score, false),
+                                                unit: USE_FINANCIAL_MAX_4 ? '/4' : '/100',
+                                                ket: getKeterangan(s.score, false),
+                                                below: isBelowStandard(s.score, false),
+                                            }))}
+                                        />
+                                        <MetrikColumn
+                                            title="Financial Health"
+                                            color="#27ae60"
+                                            rows={(financial?.subsections ?? []).map((s) => ({
+                                                name: s.name,
+                                                score: s.score,
+                                                unit: USE_FINANCIAL_MAX_4 ? '/4' : '/100',
+                                                ket: getKeterangan(s.score, true, USE_FINANCIAL_MAX_4),
+                                                below: isBelowStandard(s.score, true),
+                                            }))}
+                                        />
+                                        <MetrikColumn
+                                            title="Core Drivers"
+                                            color="#e67e22"
+                                            rows={coreSections.map((s) => ({
+                                                name: s.name,
+                                                score: USE_FINANCIAL_MAX_4 ? s.score : to100(s.score, false),
+                                                unit: USE_FINANCIAL_MAX_4 ? '/4' : '/100',
+                                                ket: getKeterangan(s.score, false),
+                                                below: isBelowStandard(s.score, false),
+                                            }))}
+                                        />
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        {/* RISK FLAGS — full width, 2 columns */}
+                        <div style={{ padding: '16px 20px', borderTop: '1px solid #e8ecf0' }}>
+                            <SectionTitle>Risk Flags</SectionTitle>
+                            {riskItems.length === 0 ? (
+                                <div style={{ fontSize: 12, color: '#27ae60' }}>✓ Tidak ada area yang berisiko.</div>
+                            ) : (
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', columnGap: 16, alignItems: 'start' }}>
+                                    {[
+                                        riskItems.slice(0, Math.ceil(riskItems.length / 2)),
+                                        riskItems.slice(Math.ceil(riskItems.length / 2)),
+                                    ].map((col, ci) => (
+                                        <div key={ci}>
+                                            {col.map((item, i) => {
+                                                const level = riskLevel(item.ket)!;
+                                                const isHigh = level === 'HIGH';
                                                 return (
-                                                    <div key={item.label} style={{ display: 'flex', alignItems: 'center', gap: 6, flex: '1 1 0', minWidth: 120 }}>
-                                                        <span style={{ width: 12, height: 12, borderRadius: 3, background: c, flexShrink: 0 }} />
-                                                        <span style={{ fontSize: 11, color: '#333' }}>
-                                                            <strong style={{ color: c }}>{item.range}</strong> {item.label}
-                                                        </span>
+                                                    <div key={`${ci}-${i}`} style={{
+                                                        display: 'flex',
+                                                        alignItems: 'flex-start',
+                                                        gap: 10,
+                                                        marginBottom: 8,
+                                                        padding: '8px 10px',
+                                                        background: isHigh ? '#fdedec' : '#fef9e7',
+                                                        borderRadius: 6,
+                                                        borderLeft: `3px solid ${isHigh ? '#c0392b' : '#d68910'}`,
+                                                    }}>
+                                                        <div style={{ fontSize: 14, marginTop: 1 }}>{isHigh ? '🔴' : '🟡'}</div>
+                                                        <div style={{ flex: 1 }}>
+                                                            <div style={{ fontSize: 11, fontWeight: 700, color: '#333' }}>{item.name}</div>
+                                                            <div style={{ fontSize: 10, color: '#666' }}>{item.pillar} — {item.ket}</div>
+                                                        </div>
+                                                        <div style={{
+                                                            fontSize: 9,
+                                                            fontWeight: 700,
+                                                            color: isHigh ? '#c0392b' : '#d68910',
+                                                            background: isHigh ? '#fadbd8' : '#fdebd0',
+                                                            padding: '2px 7px',
+                                                            borderRadius: 10,
+                                                            whiteSpace: 'nowrap',
+                                                        }}>
+                                                            {level}
+                                                        </div>
                                                     </div>
                                                 );
                                             })}
                                         </div>
-                                    </div>
-
-                                    {/* ROW 2: Detail Skor per Metrik */}
-                                    <div style={{ marginBottom: 20 }}>
-                                        <SectionTitle>Detail Skor per Metrik</SectionTitle>
-                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
-                                            <MetrikColumn
-                                                title="Strategic Value"
-                                                color="#2980b9"
-                                                rows={(strategic?.subsections ?? []).map((s) => ({
-                                                    name: s.name,
-                                                    score: USE_FINANCIAL_MAX_4 ? s.score : to100(s.score, false),
-                                                    unit: USE_FINANCIAL_MAX_4 ? '/4' : '/100',
-                                                    ket: getKeterangan(s.score, false),
-                                                    below: isBelowStandard(s.score, false),
-                                                }))}
-                                            />
-                                            <MetrikColumn
-                                                title="Financial Health"
-                                                color="#27ae60"
-                                                rows={(financial?.subsections ?? []).map((s) => ({
-                                                    name: s.name,
-                                                    score: s.score,
-                                                    unit: USE_FINANCIAL_MAX_4 ? '/4' : '/100',
-                                                    ket: getKeterangan(s.score, true, USE_FINANCIAL_MAX_4),
-                                                    below: isBelowStandard(s.score, true),
-                                                }))}
-                                            />
-                                            <MetrikColumn
-                                                title="Core Drivers"
-                                                color="#e67e22"
-                                                rows={coreSections.map((s) => ({
-                                                    name: s.name,
-                                                    score: USE_FINANCIAL_MAX_4 ? s.score : to100(s.score, false),
-                                                    unit: USE_FINANCIAL_MAX_4 ? '/4' : '/100',
-                                                    ket: getKeterangan(s.score, false),
-                                                    below: isBelowStandard(s.score, false),
-                                                }))}
-                                            />
-                                        </div>
-                                    </div>
-
+                                    ))}
                                 </div>
-                            </div>
-
-                            {/* BOTTOM ROW: Risk Flags + Key Insights */}
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0, borderTop: '1px solid #e8ecf0' }}>
-
-                                {/* Risk Flags */}
-                                <div style={{ padding: '16px 20px', borderRight: '1px solid #e8ecf0' }}>
-                                    <SectionTitle>Risk Flags</SectionTitle>
-                                    {riskItems.length === 0 ? (
-                                        <div style={{ fontSize: 12, color: '#27ae60' }}>✓ Tidak ada area yang berisiko.</div>
-                                    ) : (
-                                        riskItems.map((item, i) => {
-                                            const level = riskLevel(item.ket)!;
-                                            const isHigh = level === 'HIGH';
-                                            return (
-                                                <div key={i} style={{
-                                                    display: 'flex',
-                                                    alignItems: 'flex-start',
-                                                    gap: 10,
-                                                    marginBottom: 8,
-                                                    padding: '8px 10px',
-                                                    background: isHigh ? '#fdedec' : '#fef9e7',
-                                                    borderRadius: 6,
-                                                    borderLeft: `3px solid ${isHigh ? '#c0392b' : '#d68910'}`,
-                                                }}>
-                                                    <div style={{ fontSize: 14, marginTop: 1 }}>{isHigh ? '🔴' : '🟡'}</div>
-                                                    <div style={{ flex: 1 }}>
-                                                        <div style={{ fontSize: 11, fontWeight: 700, color: '#333' }}>{item.name}</div>
-                                                        <div style={{ fontSize: 10, color: '#666' }}>{item.pillar} — {item.ket}</div>
-                                                    </div>
-                                                    <div style={{
-                                                        fontSize: 9,
-                                                        fontWeight: 700,
-                                                        color: isHigh ? '#c0392b' : '#d68910',
-                                                        background: isHigh ? '#fadbd8' : '#fdebd0',
-                                                        padding: '2px 7px',
-                                                        borderRadius: 10,
-                                                        whiteSpace: 'nowrap',
-                                                    }}>
-                                                        {level}
-                                                    </div>
-                                                </div>
-                                            );
-                                        })
-                                    )}
-                                </div>
-
-                                {/* Key Insights & Rekomendasi */}
-                                <div style={{ padding: '16px 20px' }}>
-                                    <SectionTitle>Key Insights &amp; Rekomendasi</SectionTitle>
-                                    <div style={{ fontSize: 11, color: '#333', lineHeight: 1.7, marginBottom: 10 }}>
-                                        {checkUpAnalisis}
-                                    </div>
-                                    {coreAnalisis && (
-                                        <div style={{ fontSize: 11, color: '#333', lineHeight: 1.7, marginBottom: 10 }}>
-                                            {coreAnalisis}
-                                        </div>
-                                    )}
-                                    {notes.length > 0 && (
-                                        <div style={{ marginTop: 10 }}>
-                                            <div style={{ fontSize: 10, fontWeight: 700, color: '#1f3864', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.5 }}>
-                                                Rekomendasi
-                                            </div>
-                                            {notes.map((note, i) => (
-                                                <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 6, alignItems: 'flex-start' }}>
-                                                    <div style={{ fontSize: 13, color: '#1f3864', marginTop: 1 }}>›</div>
-                                                    <div style={{ fontSize: 11, color: '#333', lineHeight: 1.5 }}>{note}</div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    )}
-                                </div>
-
-                            </div>
-
-                            {/* FOOTER */}
-                            <div style={{ background: '#f8f9fa', borderTop: '1px solid #e8ecf0', padding: '10px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <div style={{ fontSize: 9, color: '#999', maxWidth: 500 }}>
-                                    Laporan ini disusun berdasarkan data survei yang diinput. Skor ini bukan merupakan jaminan kelayakan kredit atau rekomendasi investasi.
-                                </div>
-                                <div style={{ fontSize: 9, color: '#aaa', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5 }}>
-                                    Powered by BHI Assessment™
-                                </div>
-                            </div>
-
+                            )}
                         </div>
-                    </>
+
+                        {/* KEY INSIGHTS & REKOMENDASI — full width */}
+                        <div style={{ padding: '16px 20px', borderTop: '1px solid #e8ecf0' }}>
+                            <SectionTitle>Key Insights &amp; Rekomendasi</SectionTitle>
+                            <div style={{ fontSize: 11, color: '#333', lineHeight: 1.7, marginBottom: 10 }}>
+                                {checkUpAnalisis}
+                            </div>
+                            {coreAnalisis && (
+                                <div style={{ fontSize: 11, color: '#333', lineHeight: 1.7, marginBottom: 10 }}>
+                                    {coreAnalisis}
+                                </div>
+                            )}
+                            {([...notes, ...(notesData ?? [])].filter(Boolean)).length > 0 && (
+                                <div style={{ marginTop: 10 }}>
+                                    <div style={{ fontSize: 10, fontWeight: 700, color: '#1f3864', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                                        Rekomendasi
+                                    </div>
+                                    {[...notes, ...(notesData ?? [])].filter(Boolean).map((note, i) => (
+                                        <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 6, alignItems: 'flex-start' }}>
+                                            <div style={{ fontSize: 13, color: '#1f3864', marginTop: 1 }}>›</div>
+                                            <div style={{ fontSize: 11, color: '#333', lineHeight: 1.5 }}>{note}</div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+
+                        {/* FOOTER */}
+                        <div style={{ background: '#f8f9fa', borderTop: '1px solid #e8ecf0', padding: '10px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div style={{ fontSize: 9, color: '#999', maxWidth: 500 }}>
+                                Laporan ini disusun berdasarkan data survei yang diinput. Skor ini bukan merupakan jaminan kelayakan kredit atau rekomendasi investasi.
+                            </div>
+                            <div style={{ fontSize: 9, color: '#aaa', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                                Powered by BHI Assessment™
+                            </div>
+                        </div>
+
+                    </div>
+                </>
                 {/* )} */}
             </div>
         </div>

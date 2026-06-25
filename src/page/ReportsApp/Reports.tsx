@@ -34,6 +34,7 @@ function Reports() {
     const [selectedUser, setSelectedUser] = useState<ReportData | null>(null);
     const [insights, setInsights] = useState<string[]>([]);
     const [pdfLoading, setPdfLoading] = useState(false);
+    const [profileDetail, setProfileDetail] = useState<any>(null);
     const resultsRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -83,6 +84,26 @@ function Reports() {
             day: "2-digit", month: "short", year: "numeric",
             hour: "2-digit", minute: "2-digit"
         }).format(date);
+    };
+
+    // GET PROFILE DETAIL
+    const fetchProfileDetail = async (profileId: number) => {
+        try {
+            const token = localStorage.getItem("token") || "";
+            const response = await fetch(`http://localhost:3000/api/assessment/profile-detail/${profileId}`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                }
+            });
+            const result = await response.json();
+            if (result.success) {
+                setProfileDetail(result.data);
+            }
+        } catch (error) {
+            console.error("Gagal mengambil data:", error);
+        }
     };
 
     async function downloadPDF() {
@@ -158,7 +179,7 @@ function Reports() {
                                 </tr>
                             ) : (
                                 sortedReports.map((report, index) => (
-                                    <tr key={report.profile_id} className="hover:bg-gray-50 transition-colors cursor-pointer" onClick={() => { setSelectedUser(report); setInsights([]); }}>
+                                    <tr key={report.profile_id} className="hover:bg-gray-50 transition-colors cursor-pointer" onClick={() => { setSelectedUser(report); setInsights([]); fetchProfileDetail(report.profile_id); }}>
                                         <td className="py-4 px-6 text-sm text-gray-900">{index + 1}</td>
                                         <td className="py-4 px-6 text-sm text-gray-900 font-medium">{report.company_name}</td>
                                         <td className="py-4 px-6 text-sm text-gray-600">
@@ -198,7 +219,16 @@ function Reports() {
                         <div className="border-b border-gray-300 mb-4" />
                         <div className='flex justify-center'>
                             <div ref={resultsRef}>
-                                <Diagram />
+                                <Diagram
+                                    profilData={{
+                                        namaBisnis: profileDetail?.company_name ?? '',
+                                        industri: profileDetail?.business_type ?? '',
+                                        skalaBisnis: profileDetail?.ideation ?? '',
+                                        lokasi: profileDetail?.location ?? '',
+                                        jumlahKaryawan: profileDetail?.team_size ?? '',
+                                    }}
+                                    notesData={insights}
+                                />
                             </div>
                         </div>
 
