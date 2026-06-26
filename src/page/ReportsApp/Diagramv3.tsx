@@ -92,7 +92,7 @@ function riskLevel(ket: string): 'HIGH' | 'MEDIUM' | null {
 
 // ---- Component ----
 
-export default function AssessmentPage({ profilData, notesData }: { profilData?: Partial<ProfilBisnis>; notesData?: string[] }) {
+export default function AssessmentPage({ profilData, notesData, bhiScore, scoreData }: { profilData?: Partial<ProfilBisnis>; notesData?: string[]; bhiScore?: number; scoreData?: any }) {
     const navigate = useNavigate();
     const resultsRef = useRef<HTMLDivElement>(null);
     const [answers, setAnswers] = useState<Record<string, SurveyAnswer> | null>(null);
@@ -200,7 +200,7 @@ export default function AssessmentPage({ profilData, notesData }: { profilData?:
             ? Number((coreSections.reduce((a, b) => a + b.score, 0) / coreSections.length).toFixed(2))
             : 0;
 
-    const overallScore = results ? calcOverallScore(strategic?.score ?? 0, financial?.score ?? 0, digitalizationAvg) : 0;
+    const overallScore = results ? calcOverallScore(strategic?.score ?? 0, financial?.score ?? 0, digitalizationAvg) : (bhiScore ?? 0);
 
     const coreRadarData = coreSections.map((s) => ({ subject: s.name, value: s.score }));
 
@@ -239,6 +239,90 @@ export default function AssessmentPage({ profilData, notesData }: { profilData?:
             name: s.name, score: s.score, standard: 2.5, keterangan: '', answeredCount: 0, totalEnabled: 0,
         })), 2.5)
         : '';
+
+    const hasApi = !results && !!scoreData;
+
+    // Pillar scores (0-100) for display
+    const svScore = hasApi
+        ? (scoreData.pillar_scores?.strategic_value?.score ?? 0)
+        : to100(strategic?.score ?? 0, false);
+    const fhScore = hasApi
+        ? (scoreData.pillar_scores?.financial_health?.score ?? 0)
+        : to100(financial?.score ?? 0, true);
+    const cdScore = hasApi
+        ? (scoreData.pillar_scores?.core_drivers?.score ?? 0)
+        : to100(digitalizationAvg, false);
+
+    const displayOverall = hasApi ? (scoreData.bhi_summary?.score ?? 0) : overallScore;
+
+    // MetrikColumn row arrays
+    const svRows = hasApi
+        ? (scoreData.detail_metrics?.strategic ?? []).map((m: any) => ({
+            name: m.metrik,
+            score: m.skor,
+            unit: '/100',
+            ket: m.status ?? '-',
+            below: (m.status ?? '').includes('Kurang'),
+        }))
+        : (strategic?.subsections ?? []).map((s) => ({
+            name: s.name,
+            score: USE_FINANCIAL_MAX_4 ? s.score : to100(s.score, false),
+            unit: USE_FINANCIAL_MAX_4 ? '/4' : '/100',
+            ket: getKeterangan(s.score, false),
+            below: isBelowStandard(s.score, false),
+        }));
+
+    const fhRows = hasApi
+        ? (scoreData.detail_metrics?.financial ?? []).map((m: any) => ({
+            name: m.metrik,
+            score: m.skor,
+            unit: '/100',
+            ket: m.status ?? '-',
+            below: (m.status ?? '').includes('Kurang'),
+        }))
+        : (financial?.subsections ?? []).map((s) => ({
+            name: s.name,
+            score: s.score,
+            unit: USE_FINANCIAL_MAX_4 ? '/4' : '/100',
+            ket: getKeterangan(s.score, true, USE_FINANCIAL_MAX_4),
+            below: isBelowStandard(s.score, true),
+        }));
+
+    const cdRows = hasApi
+        ? (scoreData.detail_metrics?.core ?? []).map((m: any) => ({
+            name: m.metrik,
+            score: m.skor,
+            unit: '/100',
+            ket: m.status ?? '-',
+            below: (m.status ?? '').includes('Kurang'),
+        }))
+        : coreSections.map((s) => ({
+            name: s.name,
+            score: USE_FINANCIAL_MAX_4 ? s.score : to100(s.score, false),
+            unit: USE_FINANCIAL_MAX_4 ? '/4' : '/100',
+            ket: getKeterangan(s.score, false),
+            below: isBelowStandard(s.score, false),
+        }));
+
+    // Radar data
+    const radarData = hasApi
+        ? (scoreData.detail_metrics?.core ?? []).map((m: any) => ({ subject: m.metrik, value: m.skor }))
+        : coreRadarData;
+
+    // Risk flags
+    const displayRiskItems = hasApi
+        ? [
+            ...(scoreData.detail_metrics?.strategic ?? []).map((m: any) => ({
+                pillar: 'Strategic Value', name: m.metrik, score: m.skor, ket: m.status ?? '',
+            })),
+            ...(scoreData.detail_metrics?.financial ?? []).map((m: any) => ({
+                pillar: 'Financial Health', name: m.metrik, score: m.skor, ket: m.status ?? '',
+            })),
+            ...(scoreData.detail_metrics?.core ?? []).map((m: any) => ({
+                pillar: 'Core Drivers', name: m.metrik, score: m.skor, ket: m.status ?? '',
+            })),
+        ].filter((s) => riskLevel(s.ket) !== null)
+        : riskItems;
 
     const mergedProfil = { ...profilData, ...profil };
 
@@ -321,19 +405,19 @@ export default function AssessmentPage({ profilData, notesData }: { profilData?:
                                     Ringkasan Skor
                                 </div>
                                 <div style={{ fontSize: 10, color: '#a8c4e8', marginBottom: 2 }}>BHI SCORE</div>
-                                <div style={{ fontSize: 44, fontWeight: 900, lineHeight: 1, color: '#fff' }}>{overallScore}</div>
+                                <div style={{ fontSize: 44, fontWeight: 900, lineHeight: 1, color: '#fff' }}>{displayOverall}</div>
                                 <div style={{ fontSize: 12, color: '#a8c4e8', marginBottom: 8 }}>/100</div>
                                 <div style={{
                                     display: 'inline-block',
-                                    background: getRatingBg(overallScore),
-                                    color: getRatingColor(overallScore),
+                                    background: getRatingBg(displayOverall),
+                                    color: getRatingColor(displayOverall),
                                     fontWeight: 700,
                                     fontSize: 10,
                                     padding: '3px 10px',
                                     borderRadius: 12,
                                     marginBottom: 4,
                                 }}>
-                                    {getRatingLabel(overallScore)}
+                                    {getRatingLabel(displayOverall)}
                                 </div>
                                 <div style={{ fontSize: 9, color: '#a8c4e8', marginBottom: 20, lineHeight: 1.4 }}>
                                     Peringkat Kesehatan Bisnis
@@ -379,24 +463,24 @@ export default function AssessmentPage({ profilData, notesData }: { profilData?:
                                         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                                             <PillarCard
                                                 name="Strategic Value"
-                                                score={USE_FINANCIAL_MAX_4 ? (strategic?.score ?? 0) : to100(strategic?.score ?? 0, false)}
-                                                unit={USE_FINANCIAL_MAX_4 ? '/4' : '/100'}
-                                                score100={to100(strategic?.score ?? 0, false)}
-                                                ket={getKeterangan(strategic?.score ?? 0, false)}
+                                                score={svScore}
+                                                unit="/100"
+                                                score100={svScore}
+                                                ket={getRatingLabel(svScore)}
                                             />
                                             <PillarCard
                                                 name="Financial Health"
-                                                score={financial?.score ?? 0}
-                                                unit={USE_FINANCIAL_MAX_4 ? '/4' : '/100'}
-                                                score100={to100(financial?.score ?? 0, true)}
-                                                ket={getKeterangan(financial?.score ?? 0, true, USE_FINANCIAL_MAX_4)}
+                                                score={fhScore}
+                                                unit="/100"
+                                                score100={fhScore}
+                                                ket={getRatingLabel(fhScore)}
                                             />
                                             <PillarCard
                                                 name="Core Drivers"
-                                                score={USE_FINANCIAL_MAX_4 ? digitalizationAvg : to100(digitalizationAvg, false)}
-                                                unit={USE_FINANCIAL_MAX_4 ? '/4' : '/100'}
-                                                score100={to100(digitalizationAvg, false)}
-                                                ket={getKeterangan(digitalizationAvg, false)}
+                                                score={cdScore}
+                                                unit="/100"
+                                                score100={cdScore}
+                                                ket={getRatingLabel(cdScore)}
                                             />
                                         </div>
                                     </div>
@@ -405,10 +489,10 @@ export default function AssessmentPage({ profilData, notesData }: { profilData?:
                                     <div style={{ width: 260, flexShrink: 0 }}>
                                         <SectionTitle>Posisi Kuadran</SectionTitle>
                                         <QuadrantChart
-                                            coreDrivers={digitalizationAvg}
-                                            financialHealth={financial?.score ?? 0}
-                                            strategicValue={strategic?.score ?? 0}
-                                            financialMax={USE_FINANCIAL_MAX_4 ? 4 : 100}
+                                            coreDrivers={cdScore}
+                                            financialHealth={fhScore}
+                                            strategicValue={svScore}
+                                            financialMax={100}
                                         />
                                     </div>
 
@@ -416,7 +500,7 @@ export default function AssessmentPage({ profilData, notesData }: { profilData?:
                                     <div style={{ width: 260, flexShrink: 0 }}>
                                         <SectionTitle>Radar Overview</SectionTitle>
                                         <RadarChartComponent
-                                            data={coreRadarData}
+                                            data={radarData}
                                             color="#1f3864"
                                             fillOpacity={0.3}
                                             width={260}
@@ -460,35 +544,17 @@ export default function AssessmentPage({ profilData, notesData }: { profilData?:
                                         <MetrikColumn
                                             title="Strategic Value"
                                             color="#2980b9"
-                                            rows={(strategic?.subsections ?? []).map((s) => ({
-                                                name: s.name,
-                                                score: USE_FINANCIAL_MAX_4 ? s.score : to100(s.score, false),
-                                                unit: USE_FINANCIAL_MAX_4 ? '/4' : '/100',
-                                                ket: getKeterangan(s.score, false),
-                                                below: isBelowStandard(s.score, false),
-                                            }))}
+                                            rows={svRows}
                                         />
                                         <MetrikColumn
                                             title="Financial Health"
                                             color="#27ae60"
-                                            rows={(financial?.subsections ?? []).map((s) => ({
-                                                name: s.name,
-                                                score: s.score,
-                                                unit: USE_FINANCIAL_MAX_4 ? '/4' : '/100',
-                                                ket: getKeterangan(s.score, true, USE_FINANCIAL_MAX_4),
-                                                below: isBelowStandard(s.score, true),
-                                            }))}
+                                            rows={fhRows}
                                         />
                                         <MetrikColumn
                                             title="Core Drivers"
                                             color="#e67e22"
-                                            rows={coreSections.map((s) => ({
-                                                name: s.name,
-                                                score: USE_FINANCIAL_MAX_4 ? s.score : to100(s.score, false),
-                                                unit: USE_FINANCIAL_MAX_4 ? '/4' : '/100',
-                                                ket: getKeterangan(s.score, false),
-                                                below: isBelowStandard(s.score, false),
-                                            }))}
+                                            rows={cdRows}
                                         />
                                     </div>
                                 </div>
@@ -499,13 +565,13 @@ export default function AssessmentPage({ profilData, notesData }: { profilData?:
                         {/* RISK FLAGS — full width, 2 columns */}
                         <div style={{ padding: '16px 20px', borderTop: '1px solid #e8ecf0' }}>
                             <SectionTitle>Risk Flags</SectionTitle>
-                            {riskItems.length === 0 ? (
+                            {displayRiskItems.length === 0 ? (
                                 <div style={{ fontSize: 12, color: '#27ae60' }}>✓ Tidak ada area yang berisiko.</div>
                             ) : (
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', columnGap: 16, alignItems: 'start' }}>
                                     {[
-                                        riskItems.slice(0, Math.ceil(riskItems.length / 2)),
-                                        riskItems.slice(Math.ceil(riskItems.length / 2)),
+                                        displayRiskItems.slice(0, Math.ceil(displayRiskItems.length / 2)),
+                                        displayRiskItems.slice(Math.ceil(displayRiskItems.length / 2)),
                                     ].map((col, ci) => (
                                         <div key={ci}>
                                             {col.map((item, i) => {

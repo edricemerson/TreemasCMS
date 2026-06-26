@@ -35,6 +35,7 @@ function Reports() {
     const [insights, setInsights] = useState<string[]>([]);
     const [pdfLoading, setPdfLoading] = useState(false);
     const [profileDetail, setProfileDetail] = useState<any>(null);
+    const [bhiScore, setBhiScore] = useState<number>(0);
     const resultsRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -100,6 +101,7 @@ function Reports() {
             const result = await response.json();
             if (result.success) {
                 setProfileDetail(result.data);
+                setBhiScore(result.data.bhi_score ?? 0);
             }
         } catch (error) {
             console.error("Gagal mengambil data:", error);
@@ -228,6 +230,8 @@ function Reports() {
                                         jumlahKaryawan: profileDetail?.team_size ?? '',
                                     }}
                                     notesData={insights}
+                                    bhiScore={bhiScore}
+                                    scoreData={profileDetail}
                                 />
                             </div>
                         </div>
