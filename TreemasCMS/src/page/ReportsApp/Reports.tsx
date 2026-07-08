@@ -181,7 +181,7 @@ function Reports() {
                                 </tr>
                             ) : (
                                 sortedReports.map((report, index) => (
-                                    <tr key={report.profile_id} className="hover:bg-gray-50 transition-colors cursor-pointer" onClick={() => { setSelectedUser(report); setInsights([]); fetchProfileDetail(report.profile_id); }}>
+                                    <tr key={`${report.profile_id}-${report.result_id ?? report.sort_date}`} className="hover:bg-gray-50 transition-colors cursor-pointer" onClick={() => { setSelectedUser(report); setInsights([]); fetchProfileDetail(report.profile_id); }}>
                                         <td className="py-4 px-6 text-sm text-gray-900">{index + 1}</td>
                                         <td className="py-4 px-6 text-sm text-gray-900 font-medium">{report.company_name}</td>
                                         <td className="py-4 px-6 text-sm text-gray-600">

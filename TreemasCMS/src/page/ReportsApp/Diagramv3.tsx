@@ -1,9 +1,9 @@
 import { useRef, useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
+// import { useNavigate } from 'react-router-dom';
+// import jsPDF from 'jspdf';
+// import html2canvas from 'html2canvas';
 
-import { parseExcel } from './utils/excelParser';
+// import { parseExcel } from './utils/excelParser'; ga di pakai karena g pakai file excel
 import type { SurveyAnswer, ProfilBisnis } from './utils/excelParser';
 import { calculateScores } from './utils/scoreCalculator';
 import type { SectionResult } from './utils/scoreCalculator';
@@ -22,7 +22,6 @@ function getRatingLabel(score100: number): string {
     if (score100 >= 70) return 'Bagus';
     if (score100 >= 55) return 'Cukup';
     if (score100 >= 40) return 'Kurang';
-
     return 'Sangat Kurang';
 }
 
@@ -105,15 +104,15 @@ function riskLevel(ket: string): 'HIGH' | 'MEDIUM' | null {
 // ---- Component ----
 
 export default function AssessmentPage({ profilData, notesData, bhiScore, scoreData }: { profilData?: Partial<ProfilBisnis>; notesData?: string[]; bhiScore?: number; scoreData?: any }) {
-    const navigate = useNavigate();
+    // const navigate = useNavigate();
     const resultsRef = useRef<HTMLDivElement>(null);
-    const [answers, setAnswers] = useState<Record<string, SurveyAnswer> | null>(null);
-    const [notes, setNotes] = useState<string[]>([]);
-    const [profil, setProfil] = useState<Partial<ProfilBisnis>>({});
-    const [setError] = useState('');
-    const [setLoading] = useState(false);
-    const [setPdfLoading] = useState(false);
-    const [setFileName] = useState('');
+    const [answers] = useState<Record<string, SurveyAnswer> | null>(null);
+    const [notes] = useState<string[]>([]);
+    const [profil] = useState<Partial<ProfilBisnis>>({});
+    // const [setError] = useState('');
+    // const [setLoading] = useState(false);
+    // const [setPdfLoading] = useState(false);
+    // const [setFileName] = useState('');
 
     const results: SectionResult[] | null = useMemo(
         () => (answers ? calculateScores(answers, USE_FINANCIAL_MAX_4) : null),
@@ -142,35 +141,35 @@ export default function AssessmentPage({ profilData, notesData, bhiScore, scoreD
     //     navigate('/');
     // }
 
-    async function handleFile(file: File) {
-        // setError('');
-        setAnswers(null);
-        setNotes([]);
-        setProfil({});
-        // setFileName(file.name);
-        // setLoading(true);
-        try {
-            const { answers: parsed, notes: parsedNotes, profil: parsedProfil } = await parseExcel(file);
-            setAnswers(parsed);
-            setNotes(parsedNotes);
-            setProfil(parsedProfil);
-        } catch (err) {
-            // setError(err instanceof Error ? err.message : 'Failed to process file.');
-        } finally {
-            // setLoading(false);
-        }
-    }
+    // async function handleFile(file: File) {
+    //     // setError('');
+    //     setAnswers(null);
+    //     setNotes([]);
+    //     setProfil({});
+    //     // setFileName(file.name);
+    //     // setLoading(true);
+    //     try {
+    //         const { answers: parsed, notes: parsedNotes, profil: parsedProfil } = await parseExcel(file);
+    //         setAnswers(parsed);
+    //         setNotes(parsedNotes);
+    //         setProfil(parsedProfil);
+    //     } catch (err) {
+    //         // setError(err instanceof Error ? err.message : 'Failed to process file.');
+    //     } finally {
+    //         // setLoading(false);
+    //     }
+    // }
 
-    function onInputChange(e: React.ChangeEvent<HTMLInputElement>) {
-        const file = e.target.files?.[0];
-        if (file) handleFile(file);
-    }
+    // function onInputChange(e: React.ChangeEvent<HTMLInputElement>) {
+    //     const file = e.target.files?.[0];
+    //     if (file) handleFile(file);
+    // }
 
-    function onDrop(e: React.DragEvent) {
-        e.preventDefault();
-        const file = e.dataTransfer.files?.[0];
-        if (file) handleFile(file);
-    }
+    // function onDrop(e: React.DragEvent) {
+    //     e.preventDefault();
+    //     const file = e.dataTransfer.files?.[0];
+    //     if (file) handleFile(file);
+    // }
 
     // async function downloadPDF() {
     //     if (!resultsRef.current) return;
@@ -302,7 +301,7 @@ export default function AssessmentPage({ profilData, notesData, bhiScore, scoreD
 
     const cdRows = hasApi
         ? (scoreData.detail_metrics?.core ?? []).map((m: any) => ({
-            name: m.metrik,
+            name: m.subgroup,
             score: m.skor,
             unit: '/100',
             ket: m.status ?? '-',
@@ -852,16 +851,16 @@ function MetrikColumn({
 //     transition: 'border-color 0.2s',
 // };
 
-const pdfBtnStyle: React.CSSProperties = {
-    background: '#1f3864',
-    color: '#fff',
-    border: 'none',
-    borderRadius: 8,
-    padding: '10px 20px',
-    cursor: 'pointer',
-    fontSize: 14,
-    fontWeight: 600,
-};
+// const pdfBtnStyle: React.CSSProperties = {
+//     background: '#1f3864',
+//     color: '#fff',
+//     border: 'none',
+//     borderRadius: 8,
+//     padding: '10px 20px',
+//     cursor: 'pointer',
+//     fontSize: 14,
+//     fontWeight: 600,
+// };
 
 const thStyle: React.CSSProperties = {
     padding: '4px 6px',

@@ -134,9 +134,9 @@ const getAssessmentResult = async (req, res) => {
 
         const getLabel = (skor100) => {
             if (skor100 >= 85) return "Sangat Bagus";
-            if (skor100 >= 75) return "Bagus";
-            if (skor100 >= 65) return "Cukup";
-            if (skor100 >= 55) return "Kurang";
+            if (skor100 >= 70) return "Bagus";
+            if (skor100 >= 55) return "Cukup";
+            if (skor100 >= 40) return "Kurang";
             return "Sangat Kurang";
         };
 
@@ -182,36 +182,53 @@ const getAssessmentResult = async (req, res) => {
             const use_100 = sec.pillar === 'Financial Health';
 
             for (const [subName, sub] of Object.entries(sec.subgroups)) {
-                let subPoints = []; 
-                const currentSubId = sub.id; // 
+                let subPoints = [];
+                const currentSubId = sub.id; //
+                let categoryAverages = []; // raw 1-4 avg per category, for subgroup rollup
 
                 for (const [catName, pointsArray] of Object.entries(sub.categories)) {
-                    let rawCatAvg = avg(pointsArray); 
+                    let rawCatAvg = avg(pointsArray);
                     if (rawCatAvg === 0) continue;
 
-                    subPoints.push(...pointsArray); 
+                    subPoints.push(...pointsArray);
+                    categoryAverages.push(rawCatAvg);
 
-                    let catScore = use_100 ? (rawCatAvg / 4) * 100 : rawCatAvg; 
-                    const finalScore100 = to100(catScore, use_100);
-                    const statusLbl = getLabel(finalScore100);
+                    if (sec.pillar !== 'Core Drivers') {
+                        let catScore = use_100 ? (rawCatAvg / 4) * 100 : rawCatAvg;
+                        const finalScore100 = to100(catScore, use_100);
+                        const statusLbl = getLabel(finalScore100);
 
-                    const detailObj = { 
-                        metrik: catName, 
-                        subgroup: subName, 
-                        subgroup_id: currentSubId, 
-                        skor: finalScore100, 
-                        status: statusLbl 
-                    };
+                        const detailObj = {
+                            metrik: catName,
+                            subgroup: subName,
+                            subgroup_id: currentSubId,
+                            skor: finalScore100,
+                            status: statusLbl
+                        };
 
-                    if (sec.pillar === 'Strategic Value') detailMetrics.strategic.push(detailObj);
-                    else if (sec.pillar === 'Financial Health') detailMetrics.financial.push(detailObj);
-                    else if (sec.pillar === 'Core Drivers') detailMetrics.core.push(detailObj);
+                        if (sec.pillar === 'Strategic Value') detailMetrics.strategic.push(detailObj);
+                        else if (sec.pillar === 'Financial Health') detailMetrics.financial.push(detailObj);
+                    }
+                }
+
+                // Core Drivers: one row per subgroup = avg of category averages, rounded down
+                if (sec.pillar === 'Core Drivers' && categoryAverages.length > 0) {
+                    const subgroupRawAvg = avg(categoryAverages);
+                    const subgroupPercent = Math.min(Math.max(Math.floor(((subgroupRawAvg - 1) / 3) * 100), 0), 100);
+
+                    detailMetrics.core.push({
+                        metrik: subName,
+                        subgroup: subName,
+                        subgroup_id: currentSubId,
+                        skor: subgroupPercent,
+                        status: getLabel(subgroupPercent)
+                    });
                 }
 
                 let rawSubAvg = avg(subPoints);
                 if (rawSubAvg > 0) {
-                    let subScore = use_100 ? (rawSubAvg / 4) * 100 : rawSubAvg; 
-                    
+                    let subScore = use_100 ? (rawSubAvg / 4) * 100 : rawSubAvg;
+
                     if (sec.pillar === 'Strategic Value') strategicSubScores.push(subScore);
                     else if (sec.pillar === 'Financial Health') financialSubScores.push(subScore);
                     else if (sec.pillar === 'Core Drivers') coreSubScores.push(subScore);
@@ -371,9 +388,9 @@ const getProfileDetail = async (req, res) => {
             };
             const getLabel = (skor100) => {
                 if (skor100 >= 85) return "Sangat Bagus";
-                if (skor100 >= 75) return "Bagus";
-                if (skor100 >= 65) return "Cukup";
-                if (skor100 >= 55) return "Kurang";
+                if (skor100 >= 70) return "Bagus";
+                if (skor100 >= 55) return "Cukup";
+                if (skor100 >= 40) return "Kurang";
                 return "Sangat Kurang";
             };
 
@@ -408,35 +425,52 @@ const getProfileDetail = async (req, res) => {
                 const use_100 = sec.pillar === 'Financial Health';
 
                 for (const [subName, sub] of Object.entries(sec.subgroups)) {
-                    let subPoints = []; 
-                    const currentSubId = sub.id; 
+                    let subPoints = [];
+                    const currentSubId = sub.id;
+                    let categoryAverages = []; // raw 1-4 avg per category, for subgroup rollup
 
                     for (const [catName, pointsArray] of Object.entries(sub.categories)) {
-                        let rawCatAvg = avg(pointsArray); 
+                        let rawCatAvg = avg(pointsArray);
                         if (rawCatAvg === 0) continue;
 
-                        subPoints.push(...pointsArray); 
+                        subPoints.push(...pointsArray);
+                        categoryAverages.push(rawCatAvg);
 
-                        let catScore = use_100 ? (rawCatAvg / 4) * 100 : rawCatAvg; 
-                        const finalScore100 = to100(catScore, use_100);
-                        const statusLbl = getLabel(finalScore100);
+                        if (sec.pillar !== 'Core Drivers') {
+                            let catScore = use_100 ? (rawCatAvg / 4) * 100 : rawCatAvg;
+                            const finalScore100 = to100(catScore, use_100);
+                            const statusLbl = getLabel(finalScore100);
 
-                        const detailObj = { 
-                            metrik: catName, 
-                            subgroup: subName, 
-                            subgroup_id: currentSubId, 
-                            skor: finalScore100, 
-                            status: statusLbl 
-                        };
+                            const detailObj = {
+                                metrik: catName,
+                                subgroup: subName,
+                                subgroup_id: currentSubId,
+                                skor: finalScore100,
+                                status: statusLbl
+                            };
 
-                        if (sec.pillar === 'Strategic Value') detailMetrics.strategic.push(detailObj);
-                        else if (sec.pillar === 'Financial Health') detailMetrics.financial.push(detailObj);
-                        else if (sec.pillar === 'Core Drivers') detailMetrics.core.push(detailObj);
+                            if (sec.pillar === 'Strategic Value') detailMetrics.strategic.push(detailObj);
+                            else if (sec.pillar === 'Financial Health') detailMetrics.financial.push(detailObj);
+                        }
+                    }
+
+                    // Core Drivers: one row per subgroup = avg of category averages, rounded down
+                    if (sec.pillar === 'Core Drivers' && categoryAverages.length > 0) {
+                        const subgroupRawAvg = avg(categoryAverages);
+                        const subgroupPercent = Math.min(Math.max(Math.floor(((subgroupRawAvg - 1) / 3) * 100), 0), 100);
+
+                        detailMetrics.core.push({
+                            metrik: subName,
+                            subgroup: subName,
+                            subgroup_id: currentSubId,
+                            skor: subgroupPercent,
+                            status: getLabel(subgroupPercent)
+                        });
                     }
 
                     let rawSubAvg = avg(subPoints);
                     if (rawSubAvg > 0) {
-                        let subScore = use_100 ? (rawSubAvg / 4) * 100 : rawSubAvg; 
+                        let subScore = use_100 ? (rawSubAvg / 4) * 100 : rawSubAvg;
                         if (sec.pillar === 'Strategic Value') strategicSubScores.push(subScore);
                         else if (sec.pillar === 'Financial Health') financialSubScores.push(subScore);
                         else if (sec.pillar === 'Core Drivers') coreSubScores.push(subScore);
