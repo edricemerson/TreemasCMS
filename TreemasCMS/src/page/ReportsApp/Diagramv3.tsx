@@ -503,11 +503,11 @@ export default function AssessmentPage({ profilData, notesData, bhiScore, scoreD
                                     <div style={{ width: 260, flexShrink: 0 }}>
                                         <SectionTitle>Posisi Kuadran</SectionTitle>
                                         <QuadrantChart
-                                            coreDrivers={to100(digitalizationAvg, false)}
+                                            coreDrivers={cdScore}
                                             financialHealth={fhScore}
-                                            strategicValue={to100(strategic?.score ?? 0, false)}
+                                            strategicValue={svScore}
                                             financialMax={100}
-                                            pointColor={getRatingColor(to100(strategic?.score ?? 0, false))}
+                                            pointColor={getRatingColor(svScore)}
                                         />
                                     </div>
 

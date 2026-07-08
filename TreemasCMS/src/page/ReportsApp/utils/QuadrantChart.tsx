@@ -3,7 +3,7 @@ interface Props {
   financialHealth: number; // y: 0–100 or 1–4 depending on financialMax
   strategicValue: number;  // label on data point
   financialMax?: number;   // 100 (default) or 4
-  pointColor?:string;
+  pointColor?: string;     // fill warna data point (ikuti legend rating)
 }
 
 const PADDING = { left: 45, right: 20, top: 20, bottom: 35 };
@@ -22,6 +22,7 @@ function toPixelX(val: number) {
 
 const thresholdX = toPixelX(X_THRESHOLD);
 
+// Gradasi kuadran: I paling terang -> IV paling gelap
 const quadrantColors = [
   '#7F8BC7', // III kiri-atas   -> kuadran 3
   '#5563AC', // IV kanan-atas   -> kuadran 4 (paling gelap)
@@ -31,7 +32,6 @@ const quadrantColors = [
 // Warna label per kuadran (III & IV gelap -> teks putih, I & II terang -> teks gelap)
 const quadrantTextColors = ['#ffffff', '#ffffff', '#3A4270', '#3A4270'];
 const QUADRANT_FILL_OPACITY = 1;
-
 
 export default function QuadrantChart({ coreDrivers, financialHealth, strategicValue, financialMax = 100, pointColor = '#4472c4' }: Props) {
   const isMax4 = financialMax === 4;
@@ -70,7 +70,7 @@ export default function QuadrantChart({ coreDrivers, financialHealth, strategicV
       {/* I bottom-left */}
       <rect x={PADDING.left} y={thresholdY} width={thresholdX - PADDING.left} height={PADDING.top + PLOT_H - thresholdY} fill={quadrantColors[2]} fillOpacity={QUADRANT_FILL_OPACITY} />
       {/* II bottom-right */}
-       <rect x={thresholdX} y={thresholdY} width={PADDING.left + PLOT_W - thresholdX} height={PADDING.top + PLOT_H - thresholdY} fill={quadrantColors[3]} fillOpacity={QUADRANT_FILL_OPACITY} />
+      <rect x={thresholdX} y={thresholdY} width={PADDING.left + PLOT_W - thresholdX} height={PADDING.top + PLOT_H - thresholdY} fill={quadrantColors[3]} fillOpacity={QUADRANT_FILL_OPACITY} />
 
       {/* Axes */}
       <line x1={PADDING.left} y1={PADDING.top} x2={PADDING.left} y2={PADDING.top + PLOT_H} stroke="#999" strokeWidth={1} />
