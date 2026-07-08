@@ -8,6 +8,7 @@ export interface SurveyAnswer {
 
 export interface ProfilBisnis {
   namaBisnis: string;
+  kodeReferral: string;
   industri: string;
   skalaBisnis: string;
   tahunBerdiri: string;
@@ -24,6 +25,8 @@ export interface ParseResult {
 const PROFIL_KEY_MAP: Record<string, keyof ProfilBisnis> = {
   // English field names (from app-generated Excel)
   'company name': 'namaBisnis',
+  'referral code': 'kodeReferral',
+  'referral_code': 'kodeReferral',
   'industry': 'industri',
   'company size': 'skalaBisnis',
   'establishment year': 'tahunBerdiri',
@@ -31,6 +34,10 @@ const PROFIL_KEY_MAP: Record<string, keyof ProfilBisnis> = {
   // Indonesian field names (manual entry)
   'nama bisnis': 'namaBisnis',
   'nama_bisnis': 'namaBisnis',
+  'kode referral': 'kodeReferral',
+  'kode_referral': 'kodeReferral',
+  'kode referal': 'kodeReferral',
+  'kode_referal': 'kodeReferral',
   'industri': 'industri',
   'skala bisnis': 'skalaBisnis',
   'skala_bisnis': 'skalaBisnis',

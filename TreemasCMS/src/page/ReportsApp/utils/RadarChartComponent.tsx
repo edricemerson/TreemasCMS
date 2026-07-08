@@ -15,7 +15,6 @@ interface Props {
   data: DataPoint[];
   color: string;
   fillOpacity?: number;
-  maxValue?: number;
   width?: number;
   height?: number;
 }
@@ -24,7 +23,6 @@ export default function RadarChartComponent({
   data,
   color,
   fillOpacity = 0.6,
-  maxValue = 4,
   width = 500,
   height = 220,
 }: Props) {
@@ -48,9 +46,6 @@ export default function RadarChartComponent({
           />
         </RadarChart>
       </ResponsiveContainer>
-      <p style={{ textAlign: 'center', fontSize: 11, color: '#555', marginTop: 0 }}>
-        max {maxValue}
-      </p>
     </div>
   );
 }
