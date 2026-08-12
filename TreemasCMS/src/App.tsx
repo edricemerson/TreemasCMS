@@ -11,13 +11,11 @@ import Reports from './page/ReportsApp/Reports'
 import Settings from './page/SettingsApp/Settings'
 import CompanyInfoForm from './page/form/CompanyInfoForm'
 
-// 🔴 PERBAIKAN: Import DataProvider dari Context.tsx yang sudah kita gabungkan tadi
 import { DataProvider } from './page/WebsiteContentApp/DataStruct/Context'
 
 function App() {
     return (
         <BrowserRouter>
-            {/* 🔴 PERBAIKAN: Gunakan DataProvider sebagai pelindung / tangki airnya */}
             <DataProvider>
                 <Routes>
                     <Route path="/" element={<Login />} />
