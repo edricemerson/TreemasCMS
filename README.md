@@ -2,6 +2,52 @@
 
 Admin CMS for Treemas CSR — manage website content, master data, CSR assessment groups, companies, and reports. Built with React 19, TypeScript, and Vite.
 
+## Screenshots
+
+### Login
+
+![Login page](readme/LoginPage.jpeg)
+
+### Client — Public Landing Page
+
+<p>
+  <img src="readme/Client_LandingPage.jpeg" width="32%" alt="Client landing page" />
+  <img src="readme/Client_LandingPage1.jpeg" width="32%" alt="Client landing page 2" />
+  <img src="readme/Client_LandingPage2.jpeg" width="32%" alt="Client landing page 3" />
+</p>
+
+### Client — Form Page
+
+<p>
+  <img src="readme/Client_FormPage.png" width="48%" alt="Client form page" />
+  <img src="readme/Client_FormPage1.png" width="48%" alt="Client form page 2" />
+</p>
+
+### Admin — Website Content
+
+<p>
+  <img src="readme/AdminSite_WebsiteContent.jpeg" width="48%" alt="Admin website content editor" />
+  <img src="readme/AdminSite_WebsiteContent1.jpeg" width="48%" alt="Admin website content editor 2" />
+</p>
+
+### Admin — Master Data
+
+![Admin master data](readme/AdminSite_MasterData.jpeg)
+
+### Admin — Assessment Groups
+
+<p>
+  <img src="readme/AdminSite_AssesmentGroups.jpeg" width="48%" alt="Admin assessment groups" />
+  <img src="readme/AdminSite_AssesmentGroups1.jpeg" width="48%" alt="Admin assessment groups 2" />
+</p>
+
+### Admin — Reports
+
+<p>
+  <img src="readme/AdminSite_Reports.jpeg" width="48%" alt="Admin reports" />
+  <img src="readme/AdminSite_Reports1.jpeg" width="48%" alt="Admin reports 2" />
+</p>
+
 ## Tech Stack
 
 - **React 19** + **TypeScript**
