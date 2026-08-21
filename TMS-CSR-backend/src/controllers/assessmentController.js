@@ -507,7 +507,31 @@ const getProfileDetail = async (req, res) => {
     }
 };
 
+const getUserAnswers = async (req, res) => {
+    try {
+        const { resultId } = req.params;
 
+        const query = `
+            SELECT
+                q.id AS question_id,
+                q.question_text,
+                o.id AS answer_id,
+                o.option_text AS answer_text,
+                ans.earned_point
+            FROM assessment_user_answer ans
+            JOIN assessment_question q ON ans.question_id = q.id
+            JOIN assessment_option o ON ans.selected_option_id = o.id
+            WHERE ans.result_id = $1
+            ORDER BY q.sequence ASC
+        `;
+        const result = await pool.query(query, [resultId]);
+
+        res.json({ success: true, data: result.rows });
+    } catch (error) {
+        console.error('Error getUserAnswers:', error);
+        res.status(500).json({ success: false, error: 'failed retrieving user answers' });
+    }
+};
 
 const saveInsight = async (req, res) => {
     try {
@@ -642,5 +666,5 @@ module.exports = {
     addSubgroup, updateSubgroup, deleteSubgroup,
     addCategory, updateCategory, deleteCategory,
     addQuestion, updateQuestion, deleteQuestion,
-    addOption, updateOption, deleteOption, getProfileDetail, saveInsight,
+    addOption, updateOption, deleteOption, getProfileDetail, getUserAnswers, saveInsight,
 };

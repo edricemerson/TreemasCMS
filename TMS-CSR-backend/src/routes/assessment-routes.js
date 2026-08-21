@@ -29,6 +29,7 @@ router.put('/options/:id', verifyToken, assessmentController.updateOption);
 router.delete('/options/:id', verifyToken, assessmentController.deleteOption);
 
 router.get('/profile-detail/:profileId', verifyToken, assessmentController.getProfileDetail);
+router.get('/user-answers/:resultId', verifyToken, assessmentController.getUserAnswers);
 router.put('/insights/:resultId', verifyToken, assessmentController.saveInsight);
 
 module.exports = router;

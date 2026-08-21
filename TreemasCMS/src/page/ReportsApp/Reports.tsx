@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import Diagram from "./Diagramv3";
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import * as XLSX from 'xlsx';
 
 type ReportData = {
     profile_id: number;
@@ -137,6 +138,70 @@ function Reports() {
                 setPdfLoading(false);
             }
         }
+
+    // Fetch only the answers the user actually picked for a given assessment result
+    const fetchUserAnswers = async (resultId: number): Promise<Array<{ questionId: number; questionText: string; answerId: number; answerText: string; points: number }>> => {
+        try {
+            const token = localStorage.getItem("token") || "";
+            const response = await fetch(`http://localhost:3000/api/assessment/user-answers/${resultId}`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                }
+            });
+            const result = await response.json();
+            if (!result.success) return [];
+
+            return (result.data ?? []).map((row: any) => ({
+                questionId: row.question_id,
+                questionText: row.question_text,
+                answerId: row.answer_id,
+                answerText: row.answer_text,
+                points: row.earned_point,
+            }));
+        } catch (error) {
+            console.error("Gagal mengambil jawaban user:", error);
+            return [];
+        }
+    };
+
+    async function downloadExcel() {
+        if (!selectedUser || !profileDetail) return;
+
+        const companyInfoRows = [
+            ['Field', 'Value'],
+            ['Company Name', profileDetail.company_name ?? '-'],
+            ['Email', profileDetail.email ?? selectedUser.email ?? '-'],
+            ['Phone', selectedUser.phone ?? '-'],
+            ['Industry', profileDetail.business_type ?? '-'],
+            ['Business Scale', profileDetail.ideation ?? '-'],
+            ['Location', profileDetail.location ?? '-'],
+            ['Employees', profileDetail.team_size ?? '-'],
+            ['Status', selectedUser.status ?? '-'],
+            ['Report Date', formatDate(profileDetail.report_date ?? selectedUser.assessment_date ?? null)],
+        ];
+
+        const scoreRows: (string | number)[][] = [['QuestionID', 'Questions', 'Answer ID', 'Options', 'Option Point']];
+
+        if (selectedUser.result_id) {
+            const answers = await fetchUserAnswers(selectedUser.result_id);
+            answers.forEach((a) => {
+                scoreRows.push([a.questionId, a.questionText, a.answerId, a.answerText, a.points ?? '-']);
+            });
+        }
+
+        const scoreSheet = XLSX.utils.aoa_to_sheet(scoreRows);
+        scoreSheet['!cols'] = [{ wch: 10 }, { wch: 30 }, { wch: 10 }, { wch: 20 }, { wch: 12 }];
+
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, XLSX.utils.aoa_to_sheet(companyInfoRows), 'Company Info');
+        XLSX.utils.book_append_sheet(workbook, scoreSheet, 'Score');
+
+        const safeName = (profileDetail.company_name ?? 'BHI_Report').replace(/\s+/g, '_');
+        XLSX.writeFile(workbook, `${safeName}_Report.xlsx`);
+    }
+
     return (
         <div className="md:p-8 bg-gray-50 min-h-screen overflow-x-hidden box-border ml-64 p-6">
 
@@ -244,8 +309,8 @@ function Reports() {
                                     </label>
 
                                     <button type='button' disabled={insights.length >= 5}
-                                        className={` ${insights.length >= 5 ? 'bg-gray-400 cursor-not-allowed opacity-50' 
-                                        :'bg-black'}`} style={pdfBtnStyle}
+                                        className={` ${insights.length >= 5 ? 'bg-gray-400 cursor-not-allowed opacity-50 transition-all duration-300 ease-in-out hover:brightness-125' 
+                                        :'bg-black transition-all duration-300 ease-in-out hover:brightness-125'}`} style={pdfBtnStyle}
                                         onClick={() => setInsights(prev => [...prev, ''])}
                                     >
                                         Add Insights
@@ -253,8 +318,15 @@ function Reports() {
                                 </div>
 
                                 <div className='flex ml-auto'>
-                                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12}}>
-                                        <button type="button" onClick={downloadPDF} disabled={pdfLoading} style={pdfBtnStyle}>
+                                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12, gap: 10}}>
+                                        <button type="button" style={{...pdfBtnStyle, backgroundColor:"#217346"}}
+                                        className="transition-all duration-300 ease-in-out hover:brightness-125"
+                                        onClick={downloadExcel}>
+                                            Download Excel
+                                        </button>
+
+                                        <button type="button" onClick={downloadPDF} disabled={pdfLoading} style={pdfBtnStyle}
+                                        className="transition-all duration-300 ease-in-out hover:brightness-125">
                                             {pdfLoading ? 'Generating PDF…' : 'Download PDF'}
                                         </button>
                                     </div>
