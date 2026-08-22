@@ -10,7 +10,7 @@ const PrefooterForm = forwardRef((_, ref) => {
     const { contextData, setContextData } = useData()
 
     // State error disesuaikan dengan field bilingual, meski validasi dilonggarkan
-    const [errors, setErrors] = useState({
+    const [, setErrors] = useState({
         title1_en: "", title1_id: "",
         title2_en: "", title2_id: "",
         description_en: "", description_id: "",

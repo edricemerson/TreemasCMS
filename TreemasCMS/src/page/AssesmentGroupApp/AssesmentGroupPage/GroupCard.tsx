@@ -149,7 +149,7 @@ useEffect(() => {
         setTimeout(() => { setShowQuestionModal(false); setQuestionTitle(""); setAnswers([{ text: "", score: 0 }, { text: "", score: 0 }]); }, 200);
     };
 
-const handleUpdateQuestion = async (categoryKey: string, questionIndex: number, updatedQuestion: Question) => {
+const handleUpdateQuestion = async (updatedQuestion: Question) => {
         const questionId = updatedQuestion.id;
         if(!questionId) return;
         const token = localStorage.getItem("token") || "";
@@ -300,7 +300,7 @@ const handleUpdateQuestion = async (categoryKey: string, questionIndex: number, 
                                                     <div className="mt-4">
                                                         <QuestionCard
                                                             questions={subgroupQuestionsMap[`${subgroupKey}-${categoryIndex}`] || []}
-                                                            onUpdateQuestion={(questionIndex, updatedQuestion) => handleUpdateQuestion(`${subgroupKey}-${categoryIndex}`, questionIndex, updatedQuestion)}
+                                                            onUpdateQuestion={(_questionIndex, updatedQuestion) => handleUpdateQuestion(updatedQuestion)}
                                                             onDeleteQuestion={(questionIndex) => handleDeleteQuestion(`${subgroupKey}-${categoryIndex}`, questionIndex)}
                                                         />
                                                     </div>
